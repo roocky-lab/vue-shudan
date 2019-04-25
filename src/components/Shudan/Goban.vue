@@ -19,6 +19,21 @@
                 :height="height"
                 :hoshis="hoshis"
             ></Grid>
+            <div
+                class="shudan-grid"
+                style="display: grid; grid-template-columns: 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em; grid-template-rows: 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; z-index: 1;"
+            >
+                <Vertex
+                    :position="[3, 3]"
+                    :shift="4"
+                    :random="1"
+                    :sign="0"
+                    :selected="false"
+                    :heat="{strength:4, text: '23%'}"
+                    :paint="0"
+                    :dimmed="false"
+                ></Vertex>
+            </div>
         </div>
     </div>
 </template>
@@ -26,13 +41,15 @@
 <script>
 import { CoordX, CoordY } from './Coord';
 import Grid from './Grid.vue';
+import Vertex from './Vertex.vue';
 import { range } from './helper.js';
 
 export default {
     components: {
         CoordX,
         CoordY,
-        Grid
+        Grid,
+        Vertex
     },
 
     data: function() {
