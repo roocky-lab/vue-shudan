@@ -20,7 +20,7 @@
                 :hoshis="hoshis"
             ></Grid>
             <div
-                class="shudan-grid"
+                class="shudan-vertices"
                 style="display: grid; grid-template-columns: 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em; grid-template-rows: 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; z-index: 1;"
             >
                 <Vertex
@@ -29,19 +29,31 @@
                     :random="1"
                     :sign="0"
                     :selected="false"
-                    :heat="{strength:4, text: '23%'}"
+                    :heat="{strength:4, text: '66%'}"
                     :paint="0"
                     :dimmed="false"
                 ></Vertex>
+            </div>
+
+            <div
+                class="shudan-lines"
+                style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; z-index: 2;"
+            >
+                <div style="position: absolute; top: -0em; left: -0em; width: 19em; height: 19em;">
+                    <XLine type="line" :v1="[15, 6]" :v2="[12, 15]" :vertexSize="vertexSize"></XLine>
+                    <XLine type="arrow" :v1="[10, 4]" :v2="[5, 7]" :vertexSize="vertexSize"></XLine>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
+
 <script>
 import { CoordX, CoordY } from './Coord';
 import Grid from './Grid.vue';
 import Vertex from './Vertex.vue';
+import XLine from './Line.vue';
 import { range } from './helper.js';
 
 export default {
@@ -49,7 +61,8 @@ export default {
         CoordX,
         CoordY,
         Grid,
-        Vertex
+        Vertex,
+        XLine
     },
 
     data: function() {
