@@ -1,35 +1,37 @@
 <template>
-    <svg
-        class="shudan-grid"
-        style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 0;"
-    >
-        <rect
-            class="shudan-gridline shudan-horizontal"
-            v-for="(l, i) in _xlines"
-            :key="'x' + i"
-            :x="l.x"
-            :y="l.y"
-            :width="l.width"
-            :height="l.height"
-        ></rect>
-        <rect
-            class="shudan-gridline shudan-vertical"
-            v-for="(l, i) in _ylines"
-            :key="'y' + i"
-            :x="l.x"
-            :y="l.y"
-            :width="l.width"
-            :height="l.height"
-        ></rect>
-        <circle
-            class="shudan-hoshi"
-            v-for="(h, i) in _hoshis"
-            :key="'h' + i"
-            :cx="h.cx"
-            :cy="h.cy"
-            :r="h.r"
-        ></circle>
-    </svg>
+    <div>
+        <svg
+            class="shudan-grid"
+            style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 0;"
+        >
+            <rect
+                class="shudan-gridline shudan-horizontal"
+                v-for="(l, i) in _xlines"
+                :key="'x' + i"
+                :x="l.x"
+                :y="l.y"
+                :width="l.width"
+                :height="l.height"
+            ></rect>
+            <rect
+                class="shudan-gridline shudan-vertical"
+                v-for="(l, i) in _ylines"
+                :key="'y' + i"
+                :x="l.x"
+                :y="l.y"
+                :width="l.width"
+                :height="l.height"
+            ></rect>
+            <circle
+                class="shudan-hoshi"
+                v-for="(h, i) in _hoshis"
+                :key="'h' + i"
+                :cx="h.cx"
+                :cy="h.cy"
+                :r="h.r"
+            ></circle>
+        </svg>
+    </div>
 </template>
 
 <script>
@@ -56,7 +58,10 @@ export default {
         },
 
         hoshis: {
-            type: Array
+            type: Array,
+            default: function() {
+                return [];
+            }
         }
     },
 

@@ -55,10 +55,6 @@ export default {
             type: Number
         },
 
-        selected: {
-            type: Boolean
-        },
-
         heat: {
             type: Object
         },
@@ -67,16 +63,24 @@ export default {
             type: Number
         },
 
-        dimmed: {
-            type: Boolean
-        },
-
         marker: {
             type: Object
         },
 
         ghostStone: {
             type: Number
+        },
+
+        dimmed: {
+            type: Boolean
+        },
+
+        selected: {
+            type: Boolean
+        },
+
+        animate: {
+            type: Boolean
         }
     },
 

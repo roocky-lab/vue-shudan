@@ -1,16 +1,20 @@
 <template>
-    <div
-        class="shudan-goban shudan-goban-image shudan-coordinates"
-        style="display: inline-grid; grid-template-rows: 1em 1fr 1em; grid-template-columns: 1em 1fr 1em; font-size: 24px; line-height: 1em;"
-    >
-        <CoordX :xs="xs" style="grid-area: 1 / 2 / auto / auto;"></CoordX>
-        <CoordY :ys="ys" :height="height" style="grid-area: 2 / 1 / auto / auto;"></CoordY>
-        <CoordY :ys="ys" :height="height" style="grid-area: 2 / 3 / auto / auto;"></CoordY>
-        <CoordX :xs="xs" style="grid-area: 3 / 2 / auto / auto;"></CoordX>
-        <div
-            class="shudan-content"
-            style="position: relative; width: 19em; height: 19em; grid-area: 2 / 2 / auto / auto;"
-        >
+    <div :class="gobanClasses" :style="gobanStyles">
+        <CoordX
+            v-if="showCoordinates"
+            :xs="xs"
+            :coordX="coordX"
+            style="grid-area: 1 / 2 / auto / auto;"
+        ></CoordX>
+        <CoordY
+            v-if="showCoordinates"
+            :ys="ys"
+            :coordY="coordY"
+            :height="height"
+            style="grid-area: 2 / 1 / auto / auto;"
+        ></CoordY>
+
+        <div class="shudan-content" :style="contentStyles">
             <Grid
                 :vertexSize="vertexSize"
                 :xs="xs"
@@ -19,32 +23,54 @@
                 :height="height"
                 :hoshis="hoshis"
             ></Grid>
-            <div
-                class="shudan-vertices"
-                style="display: grid; grid-template-columns: 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em; grid-template-rows: 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em 1em; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; z-index: 1;"
-            >
+
+            <div class="shudan-vertices" :style="verticesStyles">
                 <Vertex
-                    :position="[3, 3]"
-                    :shift="4"
-                    :random="1"
-                    :sign="0"
-                    :selected="false"
-                    :heat="{strength:4, text: '66%'}"
-                    :paint="0"
-                    :dimmed="false"
+                    v-for="(v) in _vertexs"
+                    :key="v.key"
+                    :position="v.position"
+                    :shift="v.shift"
+                    :random="v.random"
+                    :sign="v.sign"
+                    :heat="v.heat"
+                    :paint="v.paint"
+                    :marker="v.marker"
+                    :dimmed="v.dimmed"
+                    :selected="v.selected"
+                    :animate="v.animate"
                 ></Vertex>
             </div>
 
             <div
                 class="shudan-lines"
-                style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; z-index: 2;"
+                style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 2;"
             >
-                <div style="position: absolute; top: -0em; left: -0em; width: 19em; height: 19em;">
-                    <XLine type="line" :v1="[15, 6]" :v2="[12, 15]" :vertexSize="vertexSize"></XLine>
-                    <XLine type="arrow" :v1="[10, 4]" :v2="[5, 7]" :vertexSize="vertexSize"></XLine>
+                <div :style="lineStyles">
+                    <XLine
+                        v-for="(l, i) in lines"
+                        :key="i"
+                        :v1="l.v1"
+                        :v2="l.v2"
+                        :type="l.type"
+                        :vertexSize="vertexSize"
+                    ></XLine>
                 </div>
             </div>
         </div>
+
+        <CoordY
+            v-if="showCoordinates"
+            :ys="ys"
+            :coordY="coordY"
+            :height="height"
+            style="grid-area: 2 / 3 / auto / auto;"
+        ></CoordY>
+        <CoordX
+            v-if="showCoordinates"
+            :xs="xs"
+            :coordX="coordX"
+            style="grid-area: 3 / 2 / auto / auto;"
+        ></CoordX>
     </div>
 </template>
 
@@ -54,7 +80,7 @@ import { CoordX, CoordY } from './Coord';
 import Grid from './Grid.vue';
 import Vertex from './Vertex.vue';
 import XLine from './Line.vue';
-import { range } from './helper.js';
+import { range, vertexEquals } from './helper.js';
 
 export default {
     components: {
@@ -65,29 +91,171 @@ export default {
         XLine
     },
 
-    data: function() {
-        return {
-            vertexSize: 24,
-            xs: range(19),
-            ys: range(19),
-            width: 19,
-            height: 19,
-            hoshis: [
-                [3, 3],
-                [3, 15],
-                [15, 3],
-                [15, 15],
-                [9, 9],
-                [9, 3],
-                [3, 9],
-                [9, 15],
-                [15, 9]
-            ]
-        };
+    props: {
+        rangeX: Array,
+        rangeY: Array,
+        hoshis: Array,
+        shiftMap: Array,
+        randomMap: Array,
+        innerProps: Object,
+        vertexSize: Number,
+        coordX: Function,
+        coordY: Function,
+        busy: Boolean,
+        signMap: Array,
+        paintMap: Array,
+        heatMap: Array,
+        markerMap: Array,
+        ghostStoneMap: Array,
+        fuzzyStonePlacement: Boolean,
+        showCoordinates: Boolean,
+        lines: Array,
+        selectedVertices: Array,
+        dimmedVertices: Array
+    },
+
+    computed: {
+        width: function() {
+            return this.signMap.length === 0 ? 0 : this.signMap[0].length;
+        },
+
+        height: function() {
+            return this.signMap.length;
+        },
+
+        xs: function() {
+            let { width } = this;
+            return range(width);
+            /*
+            XXX:  
+            let { width, rangeX } = this;
+            return range(width).slice(rangeX[0], rangeX[1] + 1);
+            */
+        },
+
+        ys: function() {
+            let { height } = this;
+            return range(height);
+            /*
+            XXX:
+            let { height, rangeY } = this;
+            return range(height).slice(rangeY[0], rangeY[1] + 1);
+            */
+        },
+
+        gobanClasses: function() {
+            let { busy, showCoordinates } = this;
+            return {
+                'shudan-goban': true,
+                'shudan-goban-image': true,
+                'shudan-busy': busy,
+                'shudan-coordinates': showCoordinates
+            };
+        },
+
+        gobanStyles: function() {
+            let { showCoordinates, vertexSize } = this;
+            return {
+                display: 'inline-grid',
+                gridTemplateRows: showCoordinates ? '1em 1fr 1em' : '1fr',
+                gridTemplateColumns: showCoordinates ? '1em 1fr 1em' : '1fr',
+                fontSize: vertexSize,
+                lineHeight: '1em'
+            };
+        },
+
+        contentStyles: function() {
+            let { xs, ys, showCoordinates } = this;
+            return {
+                position: 'relative',
+                width: `${xs.length}em`,
+                height: `${ys.length}em`,
+                gridRow: showCoordinates ? '2' : '1',
+                gridColumn: showCoordinates ? '2' : '1'
+            };
+        },
+
+        verticesStyles: function() {
+            let { xs, ys } = this;
+            return {
+                display: 'grid',
+                gridTemplateColumns: `repeat(${xs.length}, 1em)`,
+                gridTemplateRows: `repeat(${ys.length}, 1em)`,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 1
+            };
+        },
+
+        _vertexs: function() {
+            let {
+                xs,
+                ys,
+                shiftMap,
+                randomMap,
+                signMap,
+                paintMap,
+                heatMap,
+                markerMap,
+                ghostStoneMap,
+                fuzzyStonePlacement = false,
+                selectedVertices = [],
+                dimmedVertices = []
+            } = this;
+
+            return ys.map(y =>
+                xs.map(x => {
+                    let equalsVertex = v => vertexEquals(v, [x, y]);
+
+                    return {
+                        key: [x, y].join('-'),
+                        position: [x, y],
+
+                        shift: fuzzyStonePlacement
+                            ? shiftMap && shiftMap[y] && shiftMap[y][x]
+                            : 0,
+                        random: randomMap && randomMap[y] && randomMap[y][x],
+                        sign: signMap && signMap[y] && signMap[y][x],
+                        heat: heatMap && heatMap[y] && heatMap[y][x],
+                        paint: paintMap && paintMap[y] && paintMap[y][x],
+                        marker: markerMap && markerMap[y] && markerMap[y][x],
+                        ghostStone:
+                            ghostStoneMap &&
+                            ghostStoneMap[y] &&
+                            ghostStoneMap[y][x],
+                        dimmed: dimmedVertices.some(equalsVertex),
+                        selected: selectedVertices.some(equalsVertex)
+                        //   animate: animatedVertices.some(equalsVertex)
+                    };
+                })
+            );
+        },
+
+        lineStyles: function() {
+            let {
+                rangeX = [0, Infinity],
+                rangeY = [0, Infinity],
+                width,
+                height
+            } = this;
+
+            return {
+                position: 'absolute',
+                top: `-${rangeY[0]}em`,
+                left: `-${rangeX[0]}em`,
+                width: `${width}em`,
+                height: `${height}em`
+            };
+        }
     }
 };
 </script>
 
+
 <style scoped>
 @import './css/goban.css';
 </style>
+    

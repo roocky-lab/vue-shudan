@@ -38,7 +38,6 @@ export default {
             let angle = (Math.atan2(dy, dx) * 180) / Math.PI;
             let length = Math.sqrt(dx * dx + dy * dy);
 
-            console.log('left = ' + left);
             return {
                 position: 'absolute',
                 left: `${left}px`,
