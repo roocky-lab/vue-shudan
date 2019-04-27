@@ -1,20 +1,94 @@
 <template>
-    <div id="app">
-        <Goban
-            :vertexSize="24"
-            :animate="true"
-            :busy="false"
-            :signMap="signMap"
-            :showCoordinates="true"
-        ></Goban>
+    <section id="app" style="display: grid; grid-template-columns: 17em auto; column-gap: 1em;">
+        <form style="display: flex; flex-direction: column;">
+            <p style="margin: 0px 0px 0.5em;">
+                Size:
+                <button type="button" @click="vertexSize = Math.max(vertexSize - 4, 4)">-</button>
+                <button type="button" title="Reset" @click="vertexSize = 24">•</button>
+                <button type="button" @click="vertexSize += 4">+</button>
+            </p>
+            <p style="margin: 0px 0px 0.5em;">
+                Stones:
+                <!-- XXX: 复位未实现 -->
+                <button type="button" title="Reset" @click="vertexSize = 24">•</button>
+            </p>
 
-        <hr>
-        <BoundedGoban></BoundedGoban>
-    </div>
+            <label>
+                <input type="checkbox" v-model="showCoordinates">Show coordinates
+            </label>
+            <label>
+                <input type="checkbox" v-model="alternateCoordinates">Alternate coordinates
+            </label>
+            <label>
+                <input type="checkbox" v-model="showCorner">Show lower right corner only
+            </label>
+            <label>
+                <input type="checkbox" v-model="showDimmedStones">Dim dead stones
+            </label>
+            <label>
+                <input type="checkbox" v-model="fuzzyStonePlacement">Fuzzy stone placement
+            </label>
+            <label>
+                <input type="checkbox" v-model="animateStonePlacement">Animate stone placement
+            </label>
+            <label>
+                <input type="checkbox" v-model="showMarkerMap">Show markers
+            </label>
+            <label>
+                <input type="checkbox" v-model="showGhostStones">Show ghost stones
+            </label>
+            <label>
+                <input type="checkbox" v-model="showPaintMap">Show paint map
+            </label>
+            <label>
+                <input type="checkbox" v-model="showHeatMap">Show heat map
+            </label>
+            <label>
+                <input type="checkbox" v-model="showLines">Show lines
+            </label>
+            <label>
+                <input type="checkbox" v-model="showSelection">Show selection
+            </label>
+            <label>
+                <input type="checkbox" v-model="isBusy">Busy
+            </label>
+        </form>
+        <div>
+            <Goban
+                :vertexSize="vertexSize"
+                :animate="true"
+                :busy="isBusy"
+                :rangeX="showCorner ? [8, 18] : undefined"
+                :rangeY="showCorner ? [12, 18] : undefined"
+                :coordX="alternateCoordinates ? i => chineseCoord[i] : undefined"
+                :coordY="alternateCoordinates ? i => i + 1 : undefined"
+                :signMap="signMap"
+                :showCoordinates="showCoordinates"
+                :fuzzyStonePlacement="fuzzyStonePlacement"
+                :animateStonePlacement="animateStonePlacement"
+                :paintMap="showPaintMap ? paintMap : undefined"
+                :heatMap="showHeatMap ? heatMap : undefined"
+                :markerMap="showMarkerMap ? markerMap : undefined"
+                :ghostStoneMap="showGhostStones ? ghostStoneMap : undefined"
+                :lines="showLines ? [
+                        {type: 'line', v1: [15, 6], v2: [12, 15]},
+                        {type: 'arrow', v1: [10, 4], v2: [5, 7]}
+                    ] : []"
+                :dimmedVertices="showDimmedStones ? [
+                        [2, 14], [2, 13], [5, 13], [6, 13],
+                        [9, 3], [9, 5], [10, 5], [14, 7],
+                        [13, 13], [13, 14], [18, 13]
+                    ] : []"
+                :selectedVertices="showSelection ? [
+                        [9, 7], [9, 8], [10, 7], [10, 8]
+                    ] : []"
+            />
+        </div>
+    </section>
 </template>
 
 <script>
-import { Goban, BoundedGoban } from './components/Shudan';
+import { Goban } from './components/Shudan';
 
 const chineseCoord = [
     '一',
@@ -318,18 +392,43 @@ const ghostStoneMap = (() => {
 export default {
     name: 'app',
     components: {
-        Goban,
-        BoundedGoban
+        Goban
     },
 
     data: function() {
         return {
-            signMap: signMap,
-            paintMap: paintMap,
-            heatMap: heatMap,
-            markerMap: markerMap,
-            ghostStoneMap: ghostStoneMap
+            signMap,
+            vertexSize: 24,
+            showCoordinates: false,
+            alternateCoordinates: false,
+            showCorner: false,
+            showDimmedStones: true,
+            fuzzyStonePlacement: false,
+            animateStonePlacement: false,
+            showPaintMap: false,
+            showHeatMap: false,
+            showMarkerMap: true,
+            showGhostStones: false,
+            showLines: true,
+            showSelection: true,
+            isBusy: false,
+
+            /* 声明 */
+            chineseCoord,
+            paintMap,
+            heatMap,
+            markerMap,
+            ghostStoneMap
         };
     }
 };
 </script>
+
+
+<style>
+/* XXX 
+.shudan-coordx span {
+    font-size: 0.45em;
+}
+*/
+</style>
