@@ -436,6 +436,9 @@ export default {
 
 
 <style>
+body {
+    font-family: 'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif;
+}
 /* XXX 
 .shudan-coordx span {
     font-size: 0.45em;

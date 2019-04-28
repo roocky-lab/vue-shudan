@@ -1,6 +1,6 @@
 <template>
     <div class="shudan-coordx" style="display: flex; text-align: center;">
-        <div v-for="(t, i) in _coordX" :key="i" style="width: 1em;">
+        <div v-for="(t, i) in xs.map(coordX)" :key="i" style="width: 1em;">
             <span style="display: block;">{{ t }}</span>
         </div>
     </div>
@@ -11,23 +11,10 @@ import { alpha } from '../helper';
 
 export default {
     props: {
-        xs: {
-            type: Array
-        },
-
+        xs: Array,
         coordX: {
-            type: Function
-        }
-    },
-
-    computed: {
-        _coordX: function() {
-            let {
-                xs,
-                coordX = i => alpha[i] || alpha[alpha.length - 1]
-            } = this;
-
-            return xs.map(coordX);
+            type: Function,
+            default: i => alpha[i] || alpha[alpha.length - 1]
         }
     }
 };

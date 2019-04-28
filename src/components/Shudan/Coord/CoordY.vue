@@ -1,6 +1,10 @@
 <template>
     <div class="shudan-coordy" style="text-align: center;">
-        <div v-for="(t, i) in _coordY" :key="i" style="height: 1em;">
+        <div
+            v-for="(t, i) in ys.map(coordY ? coordY : i => height - i)"
+            :key="i"
+            style="height: 1em;"
+        >
             <span style="display: block;">{{ t }}</span>
         </div>
     </div>
@@ -9,24 +13,9 @@
 <script>
 export default {
     props: {
-        ys: {
-            type: Array
-        },
-
-        height: {
-            type: Number
-        },
-
-        coordY: {
-            type: Function
-        }
-    },
-
-    computed: {
-        _coordY: function() {
-            let { ys, height, coordY = i => height - i } = this;
-            return ys.map(coordY);
-        }
+        ys: Array,
+        height: Number,
+        coordY: Function
     }
 };
 </script>
