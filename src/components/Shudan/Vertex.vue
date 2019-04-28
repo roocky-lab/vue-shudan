@@ -47,6 +47,7 @@ export default {
             type: Number
         },
 
+        /* XXX: 没有shudan-random_xxx样式，这个参数是为什么预留的？ */
         random: {
             type: Number
         },
@@ -79,6 +80,7 @@ export default {
             type: Boolean
         },
 
+        /* 触发落子时滑动效果shudan-animate，需要同时开启shudan-shift_xx */
         animate: {
             type: Boolean
         }

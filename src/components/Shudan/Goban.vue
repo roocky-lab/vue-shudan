@@ -66,6 +66,8 @@
                         v-for="(v) in vs"
                         :key="v.key"
                         :position="v.position"
+                        :shift="v.shift"
+                        :random="v.random"
                         :sign="v.sign"
                         :heat="v.heat"
                         :paint="v.paint"
@@ -125,7 +127,7 @@ import { CoordX, CoordY } from './Coord';
 import Grid from './Grid.vue';
 import Vertex from './Vertex.vue';
 import XLine from './Line.vue';
-import { range, vertexEquals } from './helper.js';
+import helper from './helper.js';
 
 export default {
     components: {
@@ -173,26 +175,47 @@ export default {
     },
 
     data: function() {
-        return {
-            xs: range(19),
-            ys: range(19),
-            width: 19,
-            height: 19,
-            hoshis: [
-                [3, 3],
-                [3, 15],
-                [15, 3],
-                [15, 15],
-                [9, 9],
-                [9, 3],
-                [3, 9],
-                [9, 15],
-                [15, 9]
-            ]
-        };
+        return {};
     },
 
     computed: {
+        width: function() {
+            let { signMap } = this;
+            return signMap.length === 0 ? 0 : signMap[0].length;
+        },
+
+        height: function() {
+            let { signMap } = this;
+            return signMap.length;
+        },
+
+        xs: function() {
+            let { width, rangeX } = this;
+            return helper.range(width).slice(rangeX[0], rangeX[1] + 1);
+        },
+
+        ys: function() {
+            let { height, rangeY } = this;
+            return helper.range(height).slice(rangeY[0], rangeY[1] + 1);
+        },
+
+        hoshis: function() {
+            let { width, height } = this;
+            return helper.getHoshis(width, height);
+        },
+
+        shiftMap: function() {
+            let { signMap } = this;
+            return helper.readjustShifts(
+                signMap.map(row => row.map(_ => helper.random(8)))
+            );
+        },
+
+        randomMap: function() {
+            let { signMap } = this;
+            return signMap.map(row => row.map(_ => helper.random(4)));
+        },
+
         _vertexs: function() {
             let {
                 xs,
@@ -203,20 +226,23 @@ export default {
                 markerMap,
                 ghostStoneMap,
                 dimmedVertices,
-                selectedVertices
+                selectedVertices,
+                fuzzyStonePlacement,
+                shiftMap,
+                randomMap
             } = this;
 
             let ret = ys.map(y => {
                 return xs.map(x => {
-                    let equalsVertex = v => vertexEquals(v, [x, y]);
+                    let equalsVertex = v => helper.vertexEquals(v, [x, y]);
                     return {
                         key: [x, y].join('-'),
                         position: [x, y],
 
-                        /*   shift: fuzzyStonePlacement
+                        shift: fuzzyStonePlacement
                             ? shiftMap && shiftMap[y] && shiftMap[y][x]
                             : 0,
-                        random: randomMap && randomMap[y] && randomMap[y][x], */
+                        random: randomMap && randomMap[y] && randomMap[y][x],
                         sign: signMap && signMap[y] && signMap[y][x],
                         heat: heatMap && heatMap[y] && heatMap[y][x],
                         paint: paintMap && paintMap[y] && paintMap[y][x],
@@ -235,19 +261,6 @@ export default {
             return ret;
         }
     }
-
-    /*
-    XXX:
-    methods: {
-        coordX: function() {
-            return undefined;
-        },
-
-        coordY: function() {
-            return undefined;
-        }
-    }
-    */
 };
 </script>
 

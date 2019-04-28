@@ -85,3 +85,6 @@ export function diffSignMap(before, after) {
 
     return result
 }
+
+let helper = { alpha, vertexEvents, range, random, neighborhood, vertexEquals, lineEquals, getHoshis, readjustShifts, diffSignMap }
+export default helper
