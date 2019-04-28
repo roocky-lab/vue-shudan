@@ -1,27 +1,19 @@
 <template>
-    <div :class="'shudan-' + type" :style="styles"></div>
+    <div :class="`shudan-${type}`" :style="styles"></div>
 </template>
 
 <script>
-const { vertexEquals } = require('./helper');
+import { vertexEquals } from './helper.js';
 
 export default {
     props: {
-        v1: {
-            type: Array
-        },
-
-        v2: {
-            type: Array
-        },
-
+        v1: Array,
+        v2: Array,
         type: {
-            type: String
+            type: String,
+            default: 'line'
         },
-
-        vertexSize: {
-            type: Number
-        }
+        vertexSize: Number
     },
 
     computed: {
