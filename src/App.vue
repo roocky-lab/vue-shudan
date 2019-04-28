@@ -10,7 +10,7 @@
             <p style="margin: 0px 0px 0.5em;">
                 Stones:
                 <!-- XXX: 复位未实现 -->
-                <button type="button" title="Reset" @click="vertexSize = 24">•</button>
+                <button type="button" title="Reset" @click="signMap = rawSignMap">•</button>
             </p>
 
             <label>
@@ -113,7 +113,7 @@ const chineseCoord = [
     '十九'
 ];
 
-const signMap = [
+const rawSignMap = [
     [0, 0, 0, -1, -1, -1, 1, 0, 1, 1, -1, -1, 0, -1, 0, -1, -1, 1, 0],
     [0, 0, -1, 0, -1, 1, 1, 1, 0, 1, -1, 0, -1, -1, -1, -1, 1, 1, 0],
     [0, 0, -1, -1, -1, 1, 1, 0, 0, 1, 1, -1, -1, 1, -1, 1, 0, 1, 0],
@@ -398,7 +398,7 @@ export default {
 
     data: function() {
         return {
-            signMap,
+            signMap: rawSignMap,
             vertexSize: 24,
             showCoordinates: false,
             alternateCoordinates: false,
@@ -415,6 +415,7 @@ export default {
             isBusy: false,
 
             /* 声明 */
+            rawSignMap,
             chineseCoord,
             paintMap,
             heatMap,
@@ -425,11 +426,9 @@ export default {
 
     methods: {
         onVertexClick: function([x, y]) {
-            /* XXX: let signMap = JSON.parse(JSON.stringify(this.signMap)); */
-            let { signMap } = this;
-            let array = signMap[y];
-            array[x] = Math.sign(Math.random() - 0.5) || 1;
-            this.$set(signMap, y, array);
+            let signMap = JSON.parse(JSON.stringify(this.signMap));
+            signMap[y][x] = Math.sign(Math.random() - 0.5) || 1;
+            this.signMap = signMap;
         }
     }
 };

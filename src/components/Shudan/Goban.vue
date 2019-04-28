@@ -60,10 +60,9 @@
                     'z-index': 1
                 }"
             >
-                <!-- XXX -->
-                <template v-for="vs in _vertexs">
+                <!-- XXX： 事件只有单击，不全 -->
+                <template v-for="vs in vertexs">
                     <Vertex
-                        @vertex-click="$emit('vertex-click', v.position)"
                         v-for="(v) in vs"
                         :key="v.key"
                         :position="v.position"
@@ -76,6 +75,8 @@
                         :ghostStone="v.ghostStone"
                         :dimmed="v.dimmed"
                         :selected="v.selected"
+                        :animate="v.animate"
+                        @vertex-click="$emit('vertex-click', v.position)"
                     ></Vertex>
                 </template>
             </div>
@@ -129,6 +130,7 @@ import Grid from './Grid.vue';
 import Vertex from './Vertex.vue';
 import XLine from './Line.vue';
 import helper from './helper.js';
+import { setTimeout } from 'timers';
 
 export default {
     components: {
@@ -176,20 +178,51 @@ export default {
     },
 
     data: function() {
-        return {};
+        return {
+            width: 0,
+            height: 0,
+            shiftMap: [],
+            randomMap: [],
+            hoshis: [],
+            animatedVertices: [],
+            clearAnimatedVerticesHandler: null
+        };
+    },
+
+    watch: {
+        signMap: {
+            handler: function(signMap, oldSignMap) {
+                let width = signMap.length === 0 ? 0 : signMap[0].length;
+                let height = signMap.length;
+                if (this.width === width && this.height === height) {
+                    if (
+                        this.animateStonePlacement &&
+                        this.fuzzyStonePlacement &&
+                        this.clearAnimatedVerticesHandler == null
+                    ) {
+                        this.animatedVertices = helper.diffSignMap(
+                            oldSignMap,
+                            signMap
+                        );
+                        this.$nextTick(this.updateAnimatedVertices);
+                    }
+                } else {
+                    this.width = width;
+                    this.height = height;
+                    this.hoshis = helper.getHoshis(width, height);
+                    this.shiftMap = helper.readjustShifts(
+                        signMap.map(row => row.map(_ => helper.random(8)))
+                    );
+                    this.randomMap = signMap.map(row =>
+                        row.map(_ => helper.random(4))
+                    );
+                }
+            },
+            immediate: true
+        }
     },
 
     computed: {
-        width: function() {
-            let { signMap } = this;
-            return signMap.length === 0 ? 0 : signMap[0].length;
-        },
-
-        height: function() {
-            let { signMap } = this;
-            return signMap.length;
-        },
-
         xs: function() {
             let { width, rangeX } = this;
             return helper.range(width).slice(rangeX[0], rangeX[1] + 1);
@@ -200,27 +233,22 @@ export default {
             return helper.range(height).slice(rangeY[0], rangeY[1] + 1);
         },
 
-        hoshis: function() {
-            let { width, height } = this;
-            return helper.getHoshis(width, height);
-        },
+        vertexs: function() {
+            let { xs, ys, updateVertex } = this;
+            return ys.map(y => {
+                return xs.map(x => {
+                    return updateVertex(x, y);
+                });
+            });
+        }
+    },
 
-        shiftMap: function() {
-            let { signMap } = this;
-            return helper.readjustShifts(
-                signMap.map(row => row.map(_ => helper.random(8)))
-            );
-        },
-
-        randomMap: function() {
-            let { signMap } = this;
-            return signMap.map(row => row.map(_ => helper.random(4)));
-        },
-
-        _vertexs: function() {
+    methods: {
+        updateVertex: function(x, y) {
             let {
-                xs,
-                ys,
+                fuzzyStonePlacement,
+                shiftMap,
+                randomMap,
                 signMap,
                 heatMap,
                 paintMap,
@@ -228,38 +256,58 @@ export default {
                 ghostStoneMap,
                 dimmedVertices,
                 selectedVertices,
-                fuzzyStonePlacement,
-                shiftMap,
-                randomMap
+                animatedVertices
+            } = this;
+            let equalsVertex = v => helper.vertexEquals(v, [x, y]);
+
+            return {
+                key: [x, y].join('-'),
+                position: [x, y],
+
+                shift: fuzzyStonePlacement
+                    ? shiftMap && shiftMap[y] && shiftMap[y][x]
+                    : 0,
+                random: randomMap && randomMap[y] && randomMap[y][x],
+                sign: signMap && signMap[y] && signMap[y][x],
+                heat: heatMap && heatMap[y] && heatMap[y][x],
+                paint: paintMap && paintMap[y] && paintMap[y][x],
+                marker: markerMap && markerMap[y] && markerMap[y][x],
+                ghostStone:
+                    ghostStoneMap && ghostStoneMap[y] && ghostStoneMap[y][x],
+                dimmed: dimmedVertices.some(equalsVertex),
+                selected: selectedVertices.some(equalsVertex),
+                animate: animatedVertices.some(equalsVertex)
+            };
+        },
+
+        updateAnimatedVertices: function() {
+            let {
+                animateStonePlacement,
+                clearAnimatedVerticesHandler,
+                animatedVertices
             } = this;
 
-            let ret = ys.map(y => {
-                return xs.map(x => {
-                    let equalsVertex = v => helper.vertexEquals(v, [x, y]);
-                    return {
-                        key: [x, y].join('-'),
-                        position: [x, y],
+            if (
+                animateStonePlacement &&
+                !clearAnimatedVerticesHandler &&
+                animatedVertices.length > 0
+            ) {
+                // Handle stone animation
+                for (let [x, y] of animatedVertices) {
+                    this.$set(this.shiftMap[y], x, helper.random(7) + 1);
+                    helper.readjustShifts(this.shiftMap, [x, y]);
+                }
 
-                        shift: fuzzyStonePlacement
-                            ? shiftMap && shiftMap[y] && shiftMap[y][x]
-                            : 0,
-                        random: randomMap && randomMap[y] && randomMap[y][x],
-                        sign: signMap && signMap[y] && signMap[y][x],
-                        heat: heatMap && heatMap[y] && heatMap[y][x],
-                        paint: paintMap && paintMap[y] && paintMap[y][x],
-                        marker: markerMap && markerMap[y] && markerMap[y][x],
-                        ghostStone:
-                            ghostStoneMap &&
-                            ghostStoneMap[y] &&
-                            ghostStoneMap[y][x],
-                        dimmed: dimmedVertices.some(equalsVertex),
-                        selected: selectedVertices.some(equalsVertex)
-                        //animate: animatedVertices.some(equalsVertex)
-                    };
-                });
-            });
-
-            return ret;
+                // Clear animation classes
+                this.clearAnimatedVerticesHandler = setTimeout(
+                    function(that) {
+                        that.animatedVertices = [];
+                        that.clearAnimatedVerticesHandler = null;
+                    },
+                    this.animationDuration || 200,
+                    this
+                );
+            }
         }
     }
 };
