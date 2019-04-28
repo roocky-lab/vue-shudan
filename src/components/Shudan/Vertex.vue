@@ -4,6 +4,7 @@
         :data-y="position[1]"
         :class="vertexClasses"
         style="position: relative;"
+        @click="$emit('vertex-click', position)"
     >
         <div
             v-if="!sign && !!marker"

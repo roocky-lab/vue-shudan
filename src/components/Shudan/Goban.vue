@@ -63,6 +63,7 @@
                 <!-- XXX -->
                 <template v-for="vs in _vertexs">
                     <Vertex
+                        @vertex-click="$emit('vertex-click', v.position)"
                         v-for="(v) in vs"
                         :key="v.key"
                         :position="v.position"

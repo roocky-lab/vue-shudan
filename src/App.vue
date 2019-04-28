@@ -82,6 +82,7 @@
                 :selectedVertices="showSelection ? [
                         [9, 7], [9, 8], [10, 7], [10, 8]
                     ] : []"
+                @vertex-click="onVertexClick"
             />
         </div>
     </section>
@@ -420,6 +421,16 @@ export default {
             markerMap,
             ghostStoneMap
         };
+    },
+
+    methods: {
+        onVertexClick: function([x, y]) {
+            /* XXX: let signMap = JSON.parse(JSON.stringify(this.signMap)); */
+            let { signMap } = this;
+            let array = signMap[y];
+            array[x] = Math.sign(Math.random() - 0.5) || 1;
+            this.$set(signMap, y, array);
+        }
     }
 };
 </script>
