@@ -76,7 +76,12 @@
                         :dimmed="v.dimmed"
                         :selected="v.selected"
                         :animate="v.animate"
-                        @vertex-click="$emit('vertex-click', v.position)"
+                        @click="$emit('click', $event)"
+                        @mousedown="$emit('mousedown', $event)"
+                        @mouseup="$emit('mouseup', $event)"
+                        @mousemove="$emit('mousemove', $event)"
+                        @mouseenter="$emit('mouseenter', $event)"
+                        @mouseleave="$emit('mouseleave', $event)"
                     ></Vertex>
                 </template>
             </div>
@@ -147,13 +152,13 @@ export default {
         busy: Boolean,
         rangeX: {
             type: Array,
-            default: function() {
+            default: function () {
                 return [0, Infinity];
             }
         },
         rangeY: {
             type: Array,
-            default: function() {
+            default: function () {
                 return [0, Infinity];
             }
         },
@@ -165,7 +170,7 @@ export default {
         animateStonePlacement: Boolean,
         paintMap: {
             type: Array,
-            default: function() {
+            default: function () {
                 return [];
             }
         },
@@ -177,7 +182,7 @@ export default {
         selectedVertices: Array
     },
 
-    data: function() {
+    data: function () {
         return {
             width: 0,
             height: 0,
@@ -191,7 +196,7 @@ export default {
 
     watch: {
         signMap: {
-            handler: function(signMap, oldSignMap) {
+            handler: function (signMap, oldSignMap) {
                 let width = signMap.length === 0 ? 0 : signMap[0].length;
                 let height = signMap.length;
                 if (this.width === width && this.height === height) {
@@ -223,17 +228,17 @@ export default {
     },
 
     computed: {
-        xs: function() {
+        xs: function () {
             let { width, rangeX } = this;
             return helper.range(width).slice(rangeX[0], rangeX[1] + 1);
         },
 
-        ys: function() {
+        ys: function () {
             let { height, rangeY } = this;
             return helper.range(height).slice(rangeY[0], rangeY[1] + 1);
         },
 
-        vertexs: function() {
+        vertexs: function () {
             let { xs, ys, updateVertex } = this;
             return ys.map(y => {
                 return xs.map(x => {
@@ -244,7 +249,7 @@ export default {
     },
 
     methods: {
-        updateVertex: function(x, y) {
+        updateVertex: function (x, y) {
             let {
                 fuzzyStonePlacement,
                 shiftMap,
@@ -280,7 +285,7 @@ export default {
             };
         },
 
-        updateAnimatedVertices: function() {
+        updateAnimatedVertices: function () {
             let {
                 animateStonePlacement,
                 clearAnimatedVerticesHandler,
@@ -300,7 +305,7 @@ export default {
 
                 // Clear animation classes
                 this.clearAnimatedVerticesHandler = setTimeout(
-                    function(that) {
+                    function (that) {
                         that.animatedVertices = [];
                         that.clearAnimatedVerticesHandler = null;
                     },
@@ -314,5 +319,5 @@ export default {
 </script>
 
 <style scoped>
-@import './css/goban.css';
+@import "./css/goban.css";
 </style>

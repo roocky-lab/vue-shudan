@@ -82,7 +82,7 @@
                 :selectedVertices="showSelection ? [
                         [9, 7], [9, 8], [10, 7], [10, 8]
                     ] : []"
-                @vertex-click="onVertexClick"
+                @click="onVertexClick"
             />
         </div>
     </section>
