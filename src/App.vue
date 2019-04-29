@@ -396,7 +396,7 @@ export default {
         Goban
     },
 
-    data: function() {
+    data: function () {
         return {
             signMap: rawSignMap,
             vertexSize: 24,
@@ -425,7 +425,7 @@ export default {
     },
 
     methods: {
-        onVertexClick: function([x, y]) {
+        onVertexClick: function ([x, y]) {
             let signMap = JSON.parse(JSON.stringify(this.signMap));
             signMap[y][x] = Math.sign(Math.random() - 0.5) || 1;
             this.signMap = signMap;
@@ -437,7 +437,7 @@ export default {
 
 <style>
 body {
-    font-family: 'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif;
+    font-family: "Segoe UI", Ubuntu, Helvetica, Arial, sans-serif;
 }
 /* XXX 
 .shudan-coordx span {
