@@ -88,7 +88,7 @@ export default {
     },
 
     computed: {
-        vertexClasses: function() {
+        vertexClasses: function () {
             let {
                 shift,
                 random,
@@ -118,20 +118,20 @@ export default {
 
                 marker && marker.type && `shudan-marker_${marker.type}`,
                 marker &&
-                    marker.type === 'label' &&
-                    marker.label &&
-                    (marker.label.includes('\n') || marker.label.length >= 3) &&
-                    `shudan-smalllabel`,
+                marker.type === 'label' &&
+                marker.label &&
+                (marker.label.includes('\n') || marker.label.length >= 3) &&
+                `shudan-smalllabel`,
 
                 ghostStone && `shudan-ghost_${ghostStone.sign}`,
                 ghostStone &&
-                    ghostStone.type &&
-                    `shudan-ghost_${ghostStone.type}`,
+                ghostStone.type &&
+                `shudan-ghost_${ghostStone.type}`,
                 ghostStone && ghostStone.faint && `shudan-ghost_faint`
             ];
         },
 
-        innerClasses: function() {
+        innerClasses: function () {
             let { random, sign } = this;
 
             return [
@@ -144,7 +144,7 @@ export default {
     },
 
     methods: {
-        absoluteStyle: function(zIndex) {
+        absoluteStyle: function (zIndex) {
             return {
                 position: 'absolute',
                 zIndex

@@ -1,124 +1,108 @@
-<template>
-    <svg
-        class="shudan-grid"
-        style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 0;"
-    >
-        <rect
-            class="shudan-gridline shudan-horizontal"
-            v-for="(l, i) in _xlines"
-            :key="'x' + i"
-            :x="l.x"
-            :y="l.y"
-            :width="l.width"
-            :height="l.height"
-        ></rect>
-        <rect
-            class="shudan-gridline shudan-vertical"
-            v-for="(l, i) in _ylines"
-            :key="'y' + i"
-            :x="l.x"
-            :y="l.y"
-            :width="l.width"
-            :height="l.height"
-        ></rect>
-        <circle
-            class="shudan-hoshi"
-            v-for="(h, i) in _hoshis"
-            :key="'h' + i"
-            :cx="h.cx"
-            :cy="h.cy"
-            :r="h.r"
-        ></circle>
-    </svg>
-</template>
-
 <script>
 export default {
+    functional: true,
+
     props: {
-        vertexSize: {
-            type: Number
-        },
-
-        width: {
-            type: Number
-        },
-
-        height: {
-            type: Number
-        },
-
-        xs: {
-            type: Array
-        },
-
-        ys: {
-            type: Array
-        },
-
+        vertexSize: Number,
+        width: Number,
+        height: Number,
+        xs: Array,
+        ys: Array,
         hoshis: {
             type: Array,
-            default: function() {
-                return [];
-            }        
+            default: () => []
         }
     },
 
-    computed: {
-        _xlines: function() {
-            let { vertexSize, width, xs, ys } = this;
-            let halfVertexSize = vertexSize / 2;
-            let fl = Math.floor;
+    render: function (h, context) {
+        let { vertexSize, width, height, xs, ys, hoshis } = context.props;
+        let halfVertexSize = vertexSize / 2;
+        let fl = Math.floor;
 
-            return ys.map((_, i) => {
-                let x = xs[0] === 0 ? halfVertexSize : 0;
-                return {
-                    x: fl(x),
-                    y: fl((2 * i + 1) * halfVertexSize),
-                    width:
-                        xs[xs.length - 1] === width - 1
-                            ? fl((2 * xs.length - 1) * halfVertexSize - x)
-                            : fl(xs.length * vertexSize - x),
-                    height: 1
-                };
-            });
-        },
+        return (
+            xs.length > 0 &&
+            ys.length > 0 &&
+            h("svg",
+                {
+                    class: "shudan-grid",
+                    style: {
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        zIndex: 0
+                    }
+                },
+                [
+                    // Draw grid lines
+                    ys.map((_, i) => {
+                        let x = xs[0] === 0 ? halfVertexSize : 0;
 
-        _ylines: function() {
-            let { vertexSize, height, xs, ys } = this;
-            let halfVertexSize = vertexSize / 2;
-            let fl = Math.floor;
+                        return h("rect", {
+                            key: `h${i}`,
 
-            return xs.map((_, i) => {
-                let y = ys[0] === 0 ? halfVertexSize : 0;
-                return {
-                    x: fl((2 * i + 1) * halfVertexSize),
-                    y: fl(y),
-                    width: 1,
-                    height:
-                        ys[ys.length - 1] === height - 1
-                            ? fl((2 * ys.length - 1) * halfVertexSize - y)
-                            : fl(ys.length * vertexSize - y)
-                };
-            });
-        },
+                            class: "shudan-gridline shudan-horizontal",
+                            attrs: {
+                                x: fl(x),
+                                y: fl((2 * i + 1) * halfVertexSize),
+                                width:
+                                    xs[xs.length - 1] === width - 1
+                                        ? fl(
+                                            (2 * xs.length - 1) *
+                                            halfVertexSize -
+                                            x
+                                        )
+                                        : fl(xs.length * vertexSize - x),
+                                height: 1
+                            }
+                        });
+                    }),
 
-        _hoshis: function() {
-            let { vertexSize, xs, ys, hoshis } = this;
-            let halfVertexSize = vertexSize / 2;
-            let fl = Math.floor;
+                    xs.map((_, i) => {
+                        let y = ys[0] === 0 ? halfVertexSize : 0;
 
-            return hoshis.map(([x, y]) => {
-                let i = xs.indexOf(x);
-                let j = ys.indexOf(y);
-                if (i < 0 || j < 0) return;
+                        return h("rect", {
+                            key: `v${i}`,
 
-                return {
-                    cx: fl((2 * i + 1) * halfVertexSize) + 0.5,
-                    cy: fl((2 * j + 1) * halfVertexSize) + 0.5,
-                    r: '.1em'
-                };
-            });
-        }
+                            class: "shudan-gridline shudan-vertical",
+                            attrs: {
+                                x: fl((2 * i + 1) * halfVertexSize),
+                                y: fl(y),
+                                width: 1,
+                                height:
+                                    ys[ys.length - 1] === height - 1
+                                        ? fl(
+                                            (2 * ys.length - 1) *
+                                            halfVertexSize -
+                                            y
+                                        )
+                                        : fl(ys.length * vertexSize - y)
+                            }
+                        });
+                    }),
+
+                    // Draw hoshi points
+
+                    hoshis.map(([x, y]) => {
+                        let i = xs.indexOf(x);
+                        let j = ys.indexOf(y);
+                        if (i < 0 || j < 0) return;
+
+                        return h("circle", {
+                            key: [x, y].join("-"),
+
+                            class: "shudan-hoshi",
+                            attrs: {
+                                cx: fl((2 * i + 1) * halfVertexSize) + 0.5,
+                                cy: fl((2 * j + 1) * halfVertexSize) + 0.5,
+                                r: ".1em"
+                            }
+                        });
+                    })
+                ]
+            )
+        );
     }
 };
 </script>

@@ -17,7 +17,7 @@ export default {
     },
 
     computed: {
-        styles: function() {
+        styles: function () {
             let { v1, v2, vertexSize } = this;
             if (vertexEquals(v1, v2)) return;
 
