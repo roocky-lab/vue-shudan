@@ -90,7 +90,7 @@ export default {
         paint: Number,
         dimmed: Boolean,
         marker: Object,
-        ghostStone: Number,
+        ghostStone: Object,
         animate: Boolean, // 触发落子时滑动效果shudan-animate
     },
 
