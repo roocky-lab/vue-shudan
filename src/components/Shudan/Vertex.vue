@@ -91,7 +91,7 @@ export default {
         dimmed: Boolean,
         marker: Object,
         ghostStone: Object,
-        animate: Boolean, // 触发落子时滑动效果shudan-animate
+        animate: Boolean, // 触发落子效果
     },
 
     methods: {

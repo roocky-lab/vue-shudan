@@ -5,7 +5,7 @@
             :key="i"
             style="height: 1em;"
         >
-            <span style="display: block;">{{ t }}</span>
+            <span :style="shudanCoordSpan" style="display: block;">{{ t }}</span>
         </div>
     </div>
 </template>
@@ -16,6 +16,18 @@ export default {
         ys: Array,
         height: Number,
         coordY: Function
+    },
+
+    computed: {
+        shudanCoordSpan: function () {
+            for (let x in this.xs) {
+                if (this.coordX(x).length > 1) {
+                    return { 'font-size': '0.45em' };
+                }
+
+            }
+            return {};
+        }
     }
 };
 </script>

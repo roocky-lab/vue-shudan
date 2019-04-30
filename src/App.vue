@@ -1,5 +1,5 @@
 <template>
-    <section id="app" style="display: grid; grid-template-columns: 17em auto; column-gap: 1em;">
+    <section id="app" style="display: grid; grid-template-columns: 15em auto; column-gap: 1em;">
         <form style="display: flex; flex-direction: column;">
             <p style="margin: 0px 0px 0.5em;">
                 Size:
@@ -9,50 +9,23 @@
             </p>
             <p style="margin: 0px 0px 0.5em;">
                 Stones:
-                <!-- XXX: 复位未实现 -->
                 <button type="button" title="Reset" @click="signMap = rawSignMap">•</button>
             </p>
-
-            <label>
-                <input type="checkbox" v-model="showCoordinates">Show coordinates
-            </label>
-            <label>
-                <input type="checkbox" v-model="alternateCoordinates">Alternate coordinates
-            </label>
-            <label>
-                <input type="checkbox" v-model="showCorner">Show lower right corner only
-            </label>
-            <label>
-                <input type="checkbox" v-model="showDimmedStones">Dim dead stones
-            </label>
-            <label>
-                <input type="checkbox" v-model="fuzzyStonePlacement">Fuzzy stone placement
-            </label>
-            <label>
-                <input type="checkbox" v-model="animateStonePlacement">Animate stone placement
-            </label>
-            <label>
-                <input type="checkbox" v-model="showMarkerMap">Show markers
-            </label>
-            <label>
-                <input type="checkbox" v-model="showGhostStones">Show ghost stones
-            </label>
-            <label>
-                <input type="checkbox" v-model="showPaintMap">Show paint map
-            </label>
-            <label>
-                <input type="checkbox" v-model="showHeatMap">Show heat map
-            </label>
-            <label>
-                <input type="checkbox" v-model="showLines">Show lines
-            </label>
-            <label>
-                <input type="checkbox" v-model="showSelection">Show selection
-            </label>
-            <label>
-                <input type="checkbox" v-model="isBusy">Busy
-            </label>
+            <div>
+                <template v-for="(c, i) in checkBoxs">
+                    <label style="display: flex; align-items: center;" :key="i">
+                        <input
+                            type="checkbox"
+                            style="marginRight: .5em;"
+                            :value="c.stateKey"
+                            v-model="checkedNames"
+                        >
+                        <span style="user-select: none;">{{ c.text }}</span>
+                    </label>
+                </template>
+            </div>
         </form>
+
         <div>
             <Goban
                 :vertexSize="vertexSize"
@@ -92,25 +65,8 @@
 import { Goban } from './components/Shudan';
 
 const chineseCoord = [
-    '一',
-    '二',
-    '三',
-    '四',
-    '五',
-    '六',
-    '七',
-    '八',
-    '九',
-    '十',
-    '十一',
-    '十二',
-    '十三',
-    '十四',
-    '十五',
-    '十六',
-    '十七',
-    '十八',
-    '十九'
+    '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
+    '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九'
 ];
 
 const rawSignMap = [
@@ -166,27 +122,7 @@ const heatMap = (() => {
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-        [
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            O(7),
-            O(9, '80%\n13.5k'),
-            _,
-            _,
-            _,
-            _
-        ],
+        [_, _, _, _, _, _, _, _, _, _, _, _, _, O(7), O(9, '80%\n13.5k'), _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, O(3), _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -197,48 +133,8 @@ const heatMap = (() => {
         [_, _, _, _, _, _, _, _, _, _, _, _, _, O(2), _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-        [
-            _,
-            O(1, '20%\n111'),
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-        ],
-        [
-            _,
-            O(5, '67%\n2315'),
-            O(4),
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-        ],
+        [_, O(1, '20%\n111'), _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+        [_, O(5, '67%\n2315'), O(4), _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]
     ];
@@ -273,27 +169,7 @@ const markerMap = (() => {
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-        [
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            Q,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            L('Long\nlabel with linebreak')
-        ],
+        [_, _, _, _, _, _, _, _, Q, _, _, _, _, _, _, _, _, _, L('Long\nlabel with linebreak')],
         [_, _, _, _, _, _, _, _, Q, _, _, _, _, _, _, _, _, _, C],
         [_, _, _, _, _, _, _, _, Q, _, _, _, _, _, _, _, _, _, B],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, A]
@@ -310,69 +186,9 @@ const ghostStoneMap = (() => {
     return [
         [X(), x(), _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [O(), o(), _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-        [
-            X('good'),
-            x('good'),
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-        ],
-        [
-            X('interesting'),
-            x('interesting'),
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-        ],
-        [
-            X('doubtful'),
-            x('doubtful'),
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-        ],
+        [X('good'), x('good'), _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+        [X('interesting'), x('interesting'), _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+        [X('doubtful'), x('doubtful'), _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [X('bad'), x('bad'), _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -414,13 +230,14 @@ export default {
             showSelection: false,
             isBusy: false,
 
-            /* 声明 */
             rawSignMap,
             chineseCoord,
             paintMap,
             heatMap,
             markerMap,
-            ghostStoneMap
+            ghostStoneMap,
+
+            checkedNames: []
         };
     },
 
@@ -429,6 +246,38 @@ export default {
             let signMap = JSON.parse(JSON.stringify(this.signMap));
             signMap[y][x] = Math.sign(Math.random() - 0.5) || 1;
             this.signMap = signMap;
+        }
+    },
+
+    computed: {
+        checkBoxs: function () {
+            return [
+                { stateKey: 'showCoordinates', text: 'Show coordinates' },
+                { stateKey: 'alternateCoordinates', text: 'Alternate coordinates' },
+                { stateKey: 'showCorner', text: 'Show lower right corner only' },
+                { stateKey: 'showDimmedStones', text: 'Dim dead stones' },
+                { stateKey: 'fuzzyStonePlacement', text: 'Fuzzy stone placement' },
+                { stateKey: 'animateStonePlacement', text: 'Animate stone placement' },
+                { stateKey: 'showMarkerMap', text: 'Show markers' },
+                { stateKey: 'showGhostStones', text: 'Show ghost stones' },
+                { stateKey: 'showPaintMap', text: 'Show paint map' },
+                { stateKey: 'showHeatMap', text: 'Show heat map' },
+                { stateKey: 'showLines', text: 'Show lines' },
+                { stateKey: 'showSelection', text: 'Show selection' },
+                { stateKey: 'isBusy', text: 'Busy' }
+            ];
+        }
+    },
+
+    watch: {
+        checkedNames: function () {
+            let { checkBoxs, checkedNames } = this;
+            checkBoxs.map((value) => {
+                let { stateKey } = value;
+                let newState = checkedNames.indexOf(stateKey) > -1 ? true : false;
+                if (this[stateKey] != newState)
+                    this[stateKey] = newState;
+            });
         }
     }
 };
@@ -439,9 +288,4 @@ export default {
 body {
     font-family: "Segoe UI", Ubuntu, Helvetica, Arial, sans-serif;
 }
-/* XXX 
-.shudan-coordx span {
-    font-size: 0.45em;
-}
-*/
 </style>
