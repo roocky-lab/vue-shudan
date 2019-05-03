@@ -16,7 +16,8 @@ export default {
         let halfVertexSize = vertexSize / 2;
         let fl = Math.floor;
 
-        return (xs.length > 0 && ys.length > 0 && h('svg',
+        return ( xs.length > 0 && ys.length > 0 && h(
+            'svg',
             {
                 class: 'shudan-grid',
                 style: {

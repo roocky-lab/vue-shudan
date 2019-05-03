@@ -1,64 +1,64 @@
 <template>
-    <section id="app" style="display: grid; grid-template-columns: 15em auto; column-gap: 1em;">
-        <form style="display: flex; flex-direction: column;">
-            <p style="margin: 0px 0px 0.5em;">
-                Size:
-                <button type="button" @click="vertexSize = Math.max(vertexSize - 4, 4)">-</button>
-                <button type="button" title="Reset" @click="vertexSize = 24">•</button>
-                <button type="button" @click="vertexSize += 4">+</button>
-            </p>
-            <p style="margin: 0px 0px 0.5em;">
-                Stones:
-                <button type="button" title="Reset" @click="signMap = rawSignMap">•</button>
-            </p>
-            <div>
-                <template v-for="(c, i) in checkBoxs">
-                    <label style="display: flex; align-items: center;" :key="i">
-                        <input
-                            type="checkbox"
-                            style="marginRight: .5em;"
-                            :value="c.stateKey"
-                            v-model="checkedNames"
-                        >
-                        <span style="user-select: none;">{{ c.text }}</span>
-                    </label>
-                </template>
-            </div>
-        </form>
-
+<section id="app" style="display: grid; grid-template-columns: 15em auto; column-gap: 1em;">
+    <form style="display: flex; flex-direction: column;">
+        <p style="margin: 0px 0px 0.5em;">
+            Size:
+            <button type="button" @click="vertexSize = Math.max(vertexSize - 4, 4)">-</button>
+            <button type="button" title="Reset" @click="vertexSize = 24">•</button>
+            <button type="button" @click="vertexSize += 4">+</button>
+        </p>
+        <p style="margin: 0px 0px 0.5em;">
+            Stones:
+            <button type="button" title="Reset" @click="signMap = rawSignMap">•</button>
+        </p>
         <div>
-            <Goban
-                :vertexSize="vertexSize"
-                :animate="true"
-                :busy="isBusy"
-                :rangeX="showCorner ? [8, 18] : undefined"
-                :rangeY="showCorner ? [12, 18] : undefined"
-                :coordX="alternateCoordinates ? i => chineseCoord[i] : undefined"
-                :coordY="alternateCoordinates ? i => i + 1 : undefined"
-                :signMap="signMap"
-                :showCoordinates="showCoordinates"
-                :fuzzyStonePlacement="fuzzyStonePlacement"
-                :animateStonePlacement="animateStonePlacement"
-                :paintMap="showPaintMap ? paintMap : undefined"
-                :heatMap="showHeatMap ? heatMap : undefined"
-                :markerMap="showMarkerMap ? markerMap : undefined"
-                :ghostStoneMap="showGhostStones ? ghostStoneMap : undefined"
-                :lines="showLines ? [
-                        {type: 'line', v1: [15, 6], v2: [12, 15]},
-                        {type: 'arrow', v1: [10, 4], v2: [5, 7]}
-                    ] : []"
-                :dimmedVertices="showDimmedStones ? [
-                        [2, 14], [2, 13], [5, 13], [6, 13],
-                        [9, 3], [9, 5], [10, 5], [14, 7],
-                        [13, 13], [13, 14], [18, 13]
-                    ] : []"
-                :selectedVertices="showSelection ? [
-                        [9, 7], [9, 8], [10, 7], [10, 8]
-                    ] : []"
-                @click="onVertexClick"
-            />
+            <template v-for="(c, i) in checkBoxs">
+                <label style="display: flex; align-items: center;" :key="i">
+                    <input
+                        type="checkbox"
+                        style="marginRight: .5em;"
+                        :value="c.stateKey"
+                        v-model="checkedNames"
+                    >
+                    <span style="user-select: none;">{{ c.text }}</span>
+                </label>
+            </template>
         </div>
-    </section>
+    </form>
+
+    <div>
+        <Goban
+            :vertex-size="vertexSize"
+            :animate="true"
+            :busy="isBusy"
+            :range-x="showCorner ? [8, 18] : undefined"
+            :range-y="showCorner ? [12, 18] : undefined"
+            :coord-x="alternateCoordinates ? i => chineseCoord[i] : undefined"
+            :coord-y="alternateCoordinates ? i => i + 1 : undefined"
+            :sign-map="signMap"
+            :show-coordinates="showCoordinates"
+            :fuzzy-stone-placement="fuzzyStonePlacement"
+            :animate-stone-placement="animateStonePlacement"
+            :paint-map="showPaintMap ? paintMap : undefined"
+            :heat-map="showHeatMap ? heatMap : undefined"
+            :marker-map="showMarkerMap ? markerMap : undefined"
+            :ghost-stone-map="showGhostStones ? ghostStoneMap : undefined"
+            :lines="showLines ? [
+                {type: 'line', v1: [15, 6], v2: [12, 15]},
+                {type: 'arrow', v1: [10, 4], v2: [5, 7]}
+            ] : []"
+            :dimmed-vertices="showDimmedStones ? [
+                [2, 14], [2, 13], [5, 13], [6, 13],
+                [9, 3], [9, 5], [10, 5], [14, 7],
+                [13, 13], [13, 14], [18, 13]
+            ] : []"
+            :selected-vertices="showSelection ? [
+                [9, 7], [9, 8], [10, 7], [10, 8]
+            ] : []"
+            @click="onVertexClick"
+        />
+    </div>
+</section>
 </template>
 
 <script>
@@ -207,7 +207,7 @@ const ghostStoneMap = (() => {
 })();
 
 export default {
-    name: 'app',
+    name: 'App',
     components: {
         Goban
     },

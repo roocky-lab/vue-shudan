@@ -1,5 +1,5 @@
 <template>
-    <div :class="`shudan-${type || 'line'}`" :style="styles"></div>
+<div :class="`shudan-${type || 'line'}`" :style="styles" />
 </template>
 
 <script>

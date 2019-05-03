@@ -1,131 +1,131 @@
 <template>
+<div
+    class="shudan-goban shudan-goban-image"
+    :class="{'shudan-busy': busy, 'shudan-coordinates': showCoordinates}"
+    :style="{
+        'display': 'inline-grid',
+        'gridTemplateRows': showCoordinates ? '1em 1fr 1em' : '1fr',
+        'gridTemplateColumns': showCoordinates ? '1em 1fr 1em' : '1fr',
+        'fontSize': `${vertexSize}px`,
+        'lineHeight': '1em'
+    }"
+>
+    <!-- 上侧及左侧坐标标签 -->
+    <CoordX
+        v-if="showCoordinates"
+        :xs="xs"
+        style="grid-area: 1 / 2 / auto / auto;"
+        :coord-x="coordX"
+    />
+    <CoordY
+        v-if="showCoordinates"
+        :height="height"
+        :ys="ys"
+        style="grid-area: 2 / 1 / auto / auto;"
+        :coord-y="coordY"
+    />
+
+    <!-- 中心区 -->
     <div
-        class="shudan-goban shudan-goban-image"
-        :class="{'shudan-busy': busy, 'shudan-coordinates': showCoordinates}"
+        class="shudan-content"
         :style="{
-            'display': 'inline-grid',
-            'gridTemplateRows': showCoordinates ? '1em 1fr 1em' : '1fr',
-            'gridTemplateColumns': showCoordinates ? '1em 1fr 1em' : '1fr',
-            'fontSize': `${vertexSize}px`,
-            'lineHeight': '1em'
+            position: 'relative',
+            width: `${xs.length}em`,
+            height: `${ys.length}em`,
+            gridRow: showCoordinates ? '2' : '1',
+            gridColumn: showCoordinates ? '2' : '1'
         }"
     >
-        <!-- 上侧及左侧坐标标签 -->
-        <CoordX
-            v-if="showCoordinates"
-            :xs="xs"
-            style="grid-area: 1 / 2 / auto / auto;"
-            :coordX="coordX"
-        ></CoordX>
-        <CoordY
-            v-if="showCoordinates"
+        <!-- 棋盘网线及星位 -->
+        <Grid
+            :vertex-size="vertexSize"
+            :width="width"
             :height="height"
+            :xs="xs"
             :ys="ys"
-            style="grid-area: 2 / 1 / auto / auto;"
-            :coordY="coordY"
-        ></CoordY>
-
-        <!-- 中心区 -->
+            :hoshis="hoshis"
+        />
+        <!-- 落点区域 -->
         <div
-            class="shudan-content"
+            class="shudan-vertices"
             :style="{
-                position: 'relative',
-                width: `${xs.length}em`,
-                height: `${ys.length}em`,
-                gridRow: showCoordinates ? '2' : '1',
-                gridColumn: showCoordinates ? '2' : '1'
+                display: 'grid',
+                gridTemplateColumns: `repeat(${xs.length}, 1em)`,
+                gridTemplateRows: `repeat(${ys.length}, 1em)`,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 1
             }"
         >
-            <!-- 棋盘网线及星位 -->
-            <Grid
-                :vertexSize="vertexSize"
-                :width="width"
-                :height="height"
-                :xs="xs"
-                :ys="ys"
-                :hoshis="hoshis"
-            ></Grid>
-            <!-- 落点区域 -->
-            <div
-                class="shudan-vertices"
-                :style="{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${xs.length}, 1em)`,
-                    gridTemplateRows: `repeat(${ys.length}, 1em)`,
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    zIndex: 1
-                }"
-            >
-                <template v-for="y in ys">
-                    <template v-for="x in xs">
-                        <Vertex
-                            :key="[x, y].join('-')"
-                            :position="[x, y]"
-                            :shift="fuzzyStonePlacement ? shiftMap && shiftMap[y] && shiftMap[y][x] : 0"
-                            :random="randomMap && randomMap[y] && randomMap[y][x]"
-                            :sign="signMap && signMap[y] && signMap[y][x]"
-                            :heat="heatMap && heatMap[y] && heatMap[y][x]"
-                            :paint="paintMap && paintMap[y] && paintMap[y][x]"
-                            :marker="markerMap && markerMap[y] && markerMap[y][x]"
-                            :ghostStone="ghostStoneMap && ghostStoneMap[y] && ghostStoneMap[y][x]"
-                            :dimmed="dimmedVertices && dimmedVertices.some(v => helper.vertexEquals(v, [x, y]))"
-                            :selected="selectedVertices && selectedVertices.some(v => helper.vertexEquals(v, [x, y]))"
-                            :animate="selectedVertices && animatedVertices.some(v => helper.vertexEquals(v, [x, y]))"
-                            @click="$emit('click', $event)"
-                            @mousedown="$emit('mousedown', $event)"
-                            @mouseup="$emit('mouseup', $event)"
-                            @mousemove="$emit('mousemove', $event)"
-                            @mouseenter="$emit('mouseenter', $event)"
-                            @mouseleave="$emit('mouseleave', $event)"
-                        ></Vertex>
-                    </template>
+            <template v-for="y in ys">
+                <template v-for="x in xs">
+                    <Vertex
+                        :key="[x, y].join('-')"
+                        :position="[x, y]"
+                        :shift="fuzzyStonePlacement ? shiftMap && shiftMap[y] && shiftMap[y][x] : 0"
+                        :random="randomMap && randomMap[y] && randomMap[y][x]"
+                        :sign="signMap && signMap[y] && signMap[y][x]"
+                        :heat="heatMap && heatMap[y] && heatMap[y][x]"
+                        :paint="paintMap && paintMap[y] && paintMap[y][x]"
+                        :marker="markerMap && markerMap[y] && markerMap[y][x]"
+                        :ghost-stone="ghostStoneMap && ghostStoneMap[y] && ghostStoneMap[y][x]"
+                        :dimmed="dimmedVertices && dimmedVertices.some(v => helper.vertexEquals(v, [x, y]))"
+                        :selected="selectedVertices && selectedVertices.some(v => helper.vertexEquals(v, [x, y]))"
+                        :animate="selectedVertices && animatedVertices.some(v => helper.vertexEquals(v, [x, y]))"
+                        @click="$emit('click', $event)"
+                        @mousedown="$emit('mousedown', $event)"
+                        @mouseup="$emit('mouseup', $event)"
+                        @mousemove="$emit('mousemove', $event)"
+                        @mouseenter="$emit('mouseenter', $event)"
+                        @mouseleave="$emit('mouseleave', $event)"
+                    />
                 </template>
-            </div>
-
-            <div
-                class="shudan-lines"
-                style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 2;"
-            >
-                <div
-                    :style="{
-                        position: 'absolute',
-                        top: `-${rangeY[0]}em`,
-                        left: `-${rangeX[0]}em`,
-                        width: `${width}em`,
-                        height: `${height}em`,
-                    }"
-                >
-                    <ULine
-                        v-for="(l, i) in lines"
-                        :key="i"
-                        :v1="l.v1"
-                        :v2="l.v2"
-                        :type="l.type"
-                        :vertexSize="vertexSize"
-                    ></ULine>
-                </div>
-            </div>
+            </template>
         </div>
 
-        <!-- 下侧及右侧坐标标签 -->
-        <CoordY
-            v-if="showCoordinates"
-            :height="height"
-            :ys="ys"
-            style="grid-area: 2 / 3 / auto / auto;"
-            :coordY="coordY"
-        ></CoordY>
-        <CoordX
-            v-if="showCoordinates"
-            :xs="xs"
-            style="grid-area: 3 / 2 / auto / auto;"
-            :coordX="coordX"
-        ></CoordX>
+        <div
+            class="shudan-lines"
+            style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 2;"
+        >
+            <div
+                :style="{
+                    position: 'absolute',
+                    top: `-${rangeY[0]}em`,
+                    left: `-${rangeX[0]}em`,
+                    width: `${width}em`,
+                    height: `${height}em`,
+                }"
+            >
+                <ULine
+                    v-for="(l, i) in lines"
+                    :key="i"
+                    :v1="l.v1"
+                    :v2="l.v2"
+                    :type="l.type"
+                    :vertex-size="vertexSize"
+                />
+            </div>
+        </div>
     </div>
+
+    <!-- 下侧及右侧坐标标签 -->
+    <CoordY
+        v-if="showCoordinates"
+        :height="height"
+        :ys="ys"
+        style="grid-area: 2 / 3 / auto / auto;"
+        :coord-y="coordY"
+    />
+    <CoordX
+        v-if="showCoordinates"
+        :xs="xs"
+        style="grid-area: 3 / 2 / auto / auto;"
+        :coord-x="coordX"
+    />
+</div>
 </template>
 
 

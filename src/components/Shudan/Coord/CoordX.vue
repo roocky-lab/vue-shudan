@@ -1,9 +1,9 @@
 <template>
-    <div class="shudan-coordx" style="display: flex; text-align: center;">
-        <div v-for="(t, i) in xs.map(coordX)" :key="i" style="width: 1em;">
-            <span :style="shudanCoordSpan" style="display: block;">{{ t }}</span>
-        </div>
+<div class="shudan-coordx" style="display: flex; text-align: center;">
+    <div v-for="(t, i) in xs.map(coordX)" :key="i" style="width: 1em;">
+        <span :style="shudanCoordSpan" style="display: block;">{{ t }}</span>
     </div>
+</div>
 </template>
 
 <script>
