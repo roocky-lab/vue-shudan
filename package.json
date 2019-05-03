@@ -1,7 +1,28 @@
 {
-  "name": "vue-shudan",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@roocky/vue-shudan",
+  "version": "0.1.1",
+  "description": "基于Vue.js的围棋盘组件",
+  "main": "./src/components/Shudan/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roocky-lab/vue-shudan"
+  },
+  "keywords": [
+    "javascript",
+    "vue",
+    "ui-components",
+    "go",
+    "weiqi",
+    "goboard",
+    "goban",
+    "baduk"
+  ],
+  "author": "roocky",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/roocky-lab/vue-shudan/issues"
+  },
+  "homepage": "https://github.com/roocky-lab/vue-shudan",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -26,10 +47,9 @@
       "node": true
     },
     "extends": [
-      "plugin:vue/essential",
+      "plugin:vue/strongly-recommended",
       "eslint:recommended"
     ],
-    "rules": {},
     "parserOptions": {
       "parser": "babel-eslint"
     }

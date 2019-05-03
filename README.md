@@ -14,7 +14,7 @@
 - 灵活: 每部分可单独配置，代码也独立
 - 易用: Vue标准组件，直接import即可用
 
-## 构建
+## 示例构建
 
 确保环境已安装Git/Node.js/npm，然后运行：
 
@@ -34,4 +34,16 @@ $ npm run serve
 
 ```shell
 $ npm run build
+```
+
+## 集成调用
+
+项目添加这个库很简单，首先本地安装：
+```shell
+$ npm install @roocky/vue-shudan --save 
+```
+
+加载后直接调用即可：
+```js
+import { Goban } from '@roocky/vue-shudan';
 ```
