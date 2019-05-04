@@ -26,12 +26,12 @@ export default {
     },
 
     computed: {
-        ticks: function () {
-            let { dir, sets, labels, size = Math.max(...sets) + 1 } = this;
+        _labels: function () {
+            const { dir, sets, labels, size = Math.max(...sets) + 1 } = this;
             if (labels) {
                 return labels.length > 0 ? labels : [' '];
             } else {
-                return dir === 'x' ? alpha.split('') : [...Array(size)].map((_, i) => size - i);
+                return dir === 'x' ? [...alpha] : [...Array(size)].map((_, i) => size - i);
             }
         }
     }
@@ -41,7 +41,7 @@ export default {
 <template>
 <div :class="`shudan-coord${dir}`">
     <div v-for="(t, i) in sets" :key="i">
-        <span>{{ (ticks[t] !== undefined) ? ticks[t] : ticks[ticks.length - 1] }}</span>
+        <span>{{ (_labels[t] !== undefined) ? _labels[t] : _labels[_labels.length - 1] }}</span>
     </div>
 </div>
 </template>

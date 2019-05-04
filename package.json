@@ -54,6 +54,12 @@
       "parser": "babel-eslint"
     },
     "rules": {
+      "semi": ["error", "always"],
+      "space-before-function-paren": ["error", {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "never"
+      }],
       "vue/script-indent": ["error", 4, {
         "baseIndent": 0
       }],

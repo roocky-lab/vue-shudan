@@ -4,13 +4,13 @@ export const vertexEvents = [
     'MouseMove', 'MouseEnter', 'MouseLeave'
 ];
 
-export function range (n) { return [...Array(n)].map((_, i) => i); }
-export function random (n) { return Math.floor(Math.random() * (n + 1)); }
-export function neighborhood ([x, y]) { return [[x, y], [x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]; }
-export function vertexEquals ([x1, y1], [x2, y2]) { return x1 === x2 && y1 === y2; }
-export function lineEquals ([v1, w1], [v2, w2]) { return vertexEquals(v1, v2) && vertexEquals(w1, w2); }
+export function range(n) { return [...Array(n)].map((_, i) => i); }
+export function random(n) { return Math.floor(Math.random() * (n + 1)); }
+export function neighborhood([x, y]) { return [[x, y], [x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]; }
+export function vertexEquals([x1, y1], [x2, y2]) { return x1 === x2 && y1 === y2; }
+export function lineEquals([v1, w1], [v2, w2]) { return vertexEquals(v1, v2) && vertexEquals(w1, w2); }
 
-export function getHoshis (width, height) {
+export function getHoshis(width, height) {
     if (Math.min(width, height) < 6) return [];
 
     let [nearX, nearY] = [width, height].map(x => x >= 13 ? 3 : 2);
@@ -29,7 +29,7 @@ export function getHoshis (width, height) {
     return result;
 }
 
-export function readjustShifts (shiftMap, vertex = null) {
+export function readjustShifts(shiftMap, vertex = null) {
     if (vertex == null) {
         for (let y = 0; y < shiftMap.length; y++) {
             for (let x = 0; x < shiftMap[0].length; x++) {
@@ -63,7 +63,7 @@ export function readjustShifts (shiftMap, vertex = null) {
     return shiftMap;
 }
 
-export function diffSignMap (before, after) {
+export function diffSignMap(before, after) {
     if (
         before === after
         || before.length === 0

@@ -32,7 +32,7 @@
             :animate="true"
             :busy="isBusy"
             :range-x="showCorner ? [8, 18] : undefined"
-            :range-y="showCorner ? [12, 13] : undefined"
+            :range-y="showCorner ? [12, 18] : undefined"
             :coord-x="alternateCoordinates ? chineseCoordx : undefined"
             :coord-y="alternateCoordinates ? chineseCoordy : undefined"
             :sign-map="signMap"
@@ -70,7 +70,6 @@ const chineseCoordx = [
 ];
 
 const chineseCoordy = [...Array(19)].map((_, i) => i);
-console.log('chineseCoordy = ' + chineseCoordy);
 
 const rawSignMap = [
     [0, 0, 0, -1, -1, -1, 1, 0, 1, 1, -1, -1, 0, -1, 0, -1, -1, 1, 0],
@@ -93,6 +92,15 @@ const rawSignMap = [
     [0, 0, 1, 1, -1, 1, 1, -1, 0, -1, -1, 1, 1, 1, 1, 0, 1, -1, 1],
     [0, 0, 0, 1, -1, -1, -1, -1, -1, 0, -1, -1, 1, 1, 0, 1, 1, 1, 0]
 ];
+
+/*
+export function makeEmptySignMap(width, heigth) {
+    return [...Array(heigth)].map(() => {
+        return [...Array(width).map(() => 0)];
+    });
+}
+const rawSignMap = makeEmptySignMap(19, 19);
+*/
 
 const paintMap = [
     [-1, -1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1],
