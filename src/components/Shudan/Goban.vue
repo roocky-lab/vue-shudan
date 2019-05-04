@@ -11,18 +11,20 @@
     }"
 >
     <!-- 上侧及左侧坐标标签 -->
-    <CoordX
+    <Coord
         v-if="showCoordinates"
-        :xs="xs"
         style="grid-area: 1 / 2 / auto / auto;"
-        :coord-x="coordX"
+        dir="x"
+        :sets="xs"
+        :labels="coordX"
     />
-    <CoordY
+    <Coord
         v-if="showCoordinates"
-        :height="height"
-        :ys="ys"
         style="grid-area: 2 / 1 / auto / auto;"
-        :coord-y="coordY"
+        dir="y"
+        :sets="ys"
+        :size="height"
+        :labels="coordY"
     />
 
     <!-- 中心区 -->
@@ -112,25 +114,28 @@
     </div>
 
     <!-- 下侧及右侧坐标标签 -->
-    <CoordY
+    <Coord
         v-if="showCoordinates"
-        :height="height"
-        :ys="ys"
         style="grid-area: 2 / 3 / auto / auto;"
-        :coord-y="coordY"
+        dir="y"
+        :sets="ys"
+        :size="height"
+        :labels="coordY"
     />
-    <CoordX
+    <Coord
         v-if="showCoordinates"
-        :xs="xs"
         style="grid-area: 3 / 2 / auto / auto;"
-        :coord-x="coordX"
+        dir="x"
+        :sets="xs"
+        :labels="coordX"
     />
 </div>
 </template>
 
 
 <script>
-import { CoordX, CoordY } from './Coord';
+//import { Coord, CoordY } from './Coord';
+import Coord from './Coord.vue';
 import Grid from './Grid.vue';
 import Vertex from './Vertex.vue';
 import ULine from './Line.vue';
@@ -139,8 +144,7 @@ import { setTimeout } from 'timers';
 
 export default {
     components: {
-        CoordX,
-        CoordY,
+        Coord,
         Grid,
         Vertex,
         ULine
@@ -162,8 +166,8 @@ export default {
                 return [0, Infinity];
             }
         },
-        coordX: Function,
-        coordY: Function,
+        coordX: Array,
+        coordY: Array,
         signMap: Array,
         showCoordinates: Boolean,
         fuzzyStonePlacement: Boolean,

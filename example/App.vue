@@ -32,9 +32,9 @@
             :animate="true"
             :busy="isBusy"
             :range-x="showCorner ? [8, 18] : undefined"
-            :range-y="showCorner ? [12, 18] : undefined"
-            :coord-x="alternateCoordinates ? i => chineseCoord[i] : undefined"
-            :coord-y="alternateCoordinates ? i => i + 1 : undefined"
+            :range-y="showCorner ? [12, 13] : undefined"
+            :coord-x="alternateCoordinates ? chineseCoordx : undefined"
+            :coord-y="alternateCoordinates ? chineseCoordy : undefined"
             :sign-map="signMap"
             :show-coordinates="showCoordinates"
             :fuzzy-stone-placement="fuzzyStonePlacement"
@@ -64,10 +64,13 @@
 <script>
 import { Goban } from '../src/components/Shudan';
 
-const chineseCoord = [
+const chineseCoordx = [
     '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
     '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九'
 ];
+
+const chineseCoordy = [...Array(19)].map((_, i) => i);
+console.log('chineseCoordy = ' + chineseCoordy);
 
 const rawSignMap = [
     [0, 0, 0, -1, -1, -1, 1, 0, 1, 1, -1, -1, 0, -1, 0, -1, -1, 1, 0],
@@ -231,7 +234,8 @@ export default {
             isBusy: false,
 
             rawSignMap,
-            chineseCoord,
+            chineseCoordx,
+            chineseCoordy,
             paintMap,
             heatMap,
             markerMap,
