@@ -1,25 +1,53 @@
 <template>
-<section id="app" style="display: grid; grid-template-columns: 15em auto; column-gap: 1em;">
+<section
+    id="app"
+    style="display: grid; grid-template-columns: 15em auto; column-gap: 1em;"
+    >
     <form style="display: flex; flex-direction: column;">
         <p style="margin: 0px 0px 0.5em;">
             Size:
-            <button type="button" @click="vertexSize = Math.max(vertexSize - 4, 4)">-</button>
-            <button type="button" title="Reset" @click="vertexSize = 24">•</button>
-            <button type="button" @click="vertexSize += 4">+</button>
+            <button
+                type="button"
+                @click="vertexSize = Math.max(vertexSize - 4, 4)"
+                >
+                -
+            </button>
+            <button
+                type="button"
+                title="Reset"
+                @click="vertexSize = 24"
+                >
+                •
+            </button>
+            <button
+                type="button"
+                @click="vertexSize += 4"
+                >
+                +
+            </button>
         </p>
         <p style="margin: 0px 0px 0.5em;">
             Stones:
-            <button type="button" title="Reset" @click="signMap = rawSignMap">•</button>
+            <button
+                type="button"
+                title="Reset"
+                @click="signMap = rawSignMap"
+                >
+                •
+            </button>
         </p>
         <div>
             <template v-for="(c, i) in checkBoxs">
-                <label style="display: flex; align-items: center;" :key="i">
+                <label
+                    style="display: flex; align-items: center;"
+                    :key="i"
+                    >
                     <input
                         type="checkbox"
                         style="marginRight: .5em;"
                         :value="c.stateKey"
                         v-model="checkedNames"
-                    >
+                        >
                     <span style="user-select: none;">{{ c.text }}</span>
                 </label>
             </template>
@@ -56,7 +84,7 @@
                 [9, 7], [9, 8], [10, 7], [10, 8]
             ] : []"
             @click="onVertexClick"
-        />
+            />
     </div>
 </section>
 </template>

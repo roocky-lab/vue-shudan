@@ -63,12 +63,10 @@
       "vue/script-indent": ["error", 4, {
         "baseIndent": 0
       }],
-      "vue/max-attributes-per-line": "off",
-      "vue/singleline-html-element-content-newline": "off",
       "vue/html-indent": ["error", 4, {
         "attribute": 1,
         "baseIndent": 0,
-        "closeBracket": 0,
+        "closeBracket": 1,
         "alignAttributesVertically": false,
         "ignores": []
       }]

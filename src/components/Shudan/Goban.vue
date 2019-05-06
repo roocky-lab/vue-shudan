@@ -9,7 +9,7 @@
         'fontSize': `${vertexSize}px`,
         'lineHeight': '1em'
     }"
->
+    >
     <!-- 上侧及左侧坐标标签 -->
     <Coord
         v-if="showCoordinates"
@@ -17,7 +17,7 @@
         dir="x"
         :sets="xs"
         :labels="coordX"
-    />
+        />
     <Coord
         v-if="showCoordinates"
         style="grid-area: 2 / 1 / auto / auto;"
@@ -25,7 +25,7 @@
         :sets="ys"
         :size="height"
         :labels="coordY"
-    />
+        />
 
     <!-- 中心区 -->
     <div
@@ -37,7 +37,7 @@
             gridRow: showCoordinates ? '2' : '1',
             gridColumn: showCoordinates ? '2' : '1'
         }"
-    >
+        >
         <!-- 棋盘网线及星位 -->
         <Grid
             :vertex-size="vertexSize"
@@ -46,7 +46,7 @@
             :xs="xs"
             :ys="ys"
             :hoshis="hoshis"
-        />
+            />
         <!-- 落点区域 -->
         <div
             class="shudan-vertices"
@@ -61,7 +61,7 @@
                 bottom: 0,
                 zIndex: 1
             }"
-        >
+            >
             <template v-for="y in ys">
                 <template v-for="x in xs">
                     <Vertex
@@ -83,7 +83,7 @@
                         @mousemove="$emit('mousemove', $event)"
                         @mouseenter="$emit('mouseenter', $event)"
                         @mouseleave="$emit('mouseleave', $event)"
-                    />
+                        />
                 </template>
             </template>
         </div>
@@ -91,7 +91,7 @@
         <div
             class="shudan-lines"
             style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 2;"
-        >
+            >
             <div
                 :style="{
                     position: 'absolute',
@@ -100,15 +100,14 @@
                     width: `${width}em`,
                     height: `${height}em`,
                 }"
-            >
+                >
                 <ULine
                     v-for="(l, i) in lines"
                     :key="i"
-                    :v1="l.v1"
-                    :v2="l.v2"
+                    :pos1="l.v1"
+                    :pos2="l.v2"
                     :type="l.type"
-                    :vertex-size="vertexSize"
-                />
+                    />
             </div>
         </div>
     </div>
@@ -121,14 +120,14 @@
         :sets="ys"
         :size="height"
         :labels="coordY"
-    />
+        />
     <Coord
         v-if="showCoordinates"
         style="grid-area: 3 / 2 / auto / auto;"
         dir="x"
         :sets="xs"
         :labels="coordX"
-    />
+        />
 </div>
 </template>
 
@@ -166,9 +165,18 @@ export default {
                 return [0, Infinity];
             }
         },
-        coordX: Array,
-        coordY: Array,
         signMap: Array,
+        coordX: {
+            type: Array,
+            default: () => [...helper.alpha]
+        },
+        coordY: {
+            type: Array,
+            default() {
+                const height = this.signMap.length;
+                return [...Array(height)].map((_, i) => height - i);
+            }
+        },
         showCoordinates: Boolean,
         fuzzyStonePlacement: Boolean,
         animateStonePlacement: Boolean,

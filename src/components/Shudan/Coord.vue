@@ -1,12 +1,10 @@
 <script>
-import { alpha } from './helper';
-
 export default {
     props: {
         dir: {
             type: String,
             required: true,
-            validator: val => val === 'x' || val === 'y'
+            validator: v => v === 'x' || v === 'y'
         },
 
         sets: {
@@ -14,25 +12,10 @@ export default {
             required: true
         },
 
-        size: {
-            type: Number,
-            default: undefined
-        },
-
         labels: {
             type: Array,
-            default: undefined
-        }
-    },
-
-    computed: {
-        _labels: function () {
-            const { dir, sets, labels, size = Math.max(...sets) + 1 } = this;
-            if (labels) {
-                return labels.length > 0 ? labels : [' '];
-            } else {
-                return dir === 'x' ? [...alpha] : [...Array(size)].map((_, i) => size - i);
-            }
+            required: true,
+            default: () => [' ']
         }
     }
 };
@@ -40,8 +23,15 @@ export default {
 
 <template>
 <div :class="`shudan-coord${dir}`">
-    <div v-for="(t, i) in sets" :key="i">
-        <span>{{ (_labels[t] !== undefined) ? _labels[t] : _labels[_labels.length - 1] }}</span>
+    <div
+        v-for="(t, i) in sets"
+        :key="i"
+        >
+        <span
+            v-text="labels[t] != undefined
+                ? labels[t]
+                : labels[labels.length - 1]"
+            />
     </div>
 </div>
 </template>

@@ -1,52 +1,53 @@
 <script>
-import { vertexEquals } from './helper.js';
-
 export default {
     props: {
-        v1: {
+        pos1: {
             type: Array,
-            required: true
+            required: true,
+            default: () => [0, 0]
         },
 
-        v2: {
+        pos2: {
             type: Array,
-            required: true
+            required: true,
+            default: () => [0, 0]
         },
 
         type: {
             type: String,
-            default: 'line'
-        },
-
-        vertexSize: {
-            type: Number,
-            required: true
-        },
+            required: true,
+            default: "line"
+        }
     },
 
     computed: {
-        styles: function () {
-            const { v1, v2, vertexSize } = this;
-            if (vertexEquals(v1, v2)) return;
-            const [pos1, pos2] = [v1, v2].map(v => v.map(x => x * vertexSize));
+        styles() {
+            const { pos1, pos2, vertexEquals } = this;
+            if (vertexEquals(pos1, pos2)) return;
             const [dx, dy] = pos1.map((x, i) => pos2[i] - x);
-            const [left, top] = pos1.map((x, i) => (x + pos2[i] + vertexSize) / 2);
+            const [left, top] = pos1.map((x, i) => (x + pos2[i] + 1) / 2);
             const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
             const length = Math.sqrt(dx * dx + dy * dy);
-
             return {
                 position: 'absolute',
-                left: `${left}px`,
-                top: `${top}px`,
+                left: `${left}em`,
+                top: `${top}em`,
                 margin: 0,
-                width: `${length}px`,
-                transform: `translateX(${-length / 2}px) rotate(${angle}deg)`
+                width: `${length}em`,
+                transform: `translateX(${-length / 2}em) rotate(${angle}deg)`
             };
         }
+    },
+
+    methods: {
+        vertexEquals: ([x1, y1], [x2, y2]) => x1 === x2 && y1 === y2
     }
 };
 </script>
 
 <template>
-<div :class="`shudan-${type}`" :style="styles" />
+<div
+    :class="`shudan-${type}`"
+    :style="styles"
+    />
 </template>

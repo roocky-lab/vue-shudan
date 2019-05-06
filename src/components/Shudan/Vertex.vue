@@ -2,94 +2,169 @@
 <div
     :data-x="position[0]"
     :data-y="position[1]"
-    style="position: relative;"
     :class="[
         'shudan-vertex',
         `shudan-random_${random}`,
         `shudan-sign_${sign}`,
-            
         {
             [`shudan-shift_${shift}`]: !!shift,
-            [`shudan-heat_${!!heat && heat.strength}`]: !!heat,
+            [`shudan-heat_${heat && heat.strength}`]: !!heat && !!heat.strength,
             [`shudan-paint_${paint}`]: !!paint,
             'shudan-dimmed': dimmed,
             'shudan-selected': selected,
-            'shudan-animate': animate
-        },
-
-        marker && marker.type && `shudan-marker_${marker.type}`,
-        marker && marker.type === 'label'
-            && marker.label
-            && (marker.label.includes('\n') || marker.label.length >= 3)
-            && `shudan-smalllabel`,
-
-        ghostStone && `shudan-ghost_${ghostStone.sign}`,
-        ghostStone && ghostStone.type && `shudan-ghost_${ghostStone.type}`,
-        ghostStone && ghostStone.faint && `shudan-ghost_faint`
+            'shudan-animate': animate,
+            [`shudan-marker_${marker && marker.type}`]: !!marker && !!marker.type,
+            'shudan-smalllabel': !!marker && marker.type === 'label'
+                && !!marker.label && (marker.label.includes('\n') || marker.label.length >= 3),
+            [`shudan-ghost_${ghostStone && ghostStone.sign}`]: !!ghostStone && !!ghostStone.sign,
+            [`shudan-ghost_${ghostStone && ghostStone.type}`]: !!ghostStone && !!ghostStone.type,
+            'shudan-ghost_faint': !!ghostStone && !!ghostStone.faint
+        }
     ]"
+    style="position: relative;"
     @click="$emit('click', position)"
     @mousedown="$emit('mousedown', position)"
     @mouseup="$emit('mouseup', position)"
     @mousemove="$emit('mousemove', position)"
     @mouseenter="$emit('mouseenter', position)"
     @mouseleave="$emit('mouseleave', position)"
->
+    >
     <div
-        key="marker"
         v-if="!sign && !!marker"
+        key="marker"
         class="shudan-marker"
-        :title="marker.label"
         :style="absoluteStyle(0)"
-    />
+        :title="marker.label"
+        />
     <div
-        key="ghost"
         v-if="!sign && !!ghostStone"
+        key="ghost"
         class="shudan-ghost"
         :style="absoluteStyle(1)"
-    />
-
-    <div key="stone" class="shudan-stone" :style="absoluteStyle(2)">
-        <div key="shadow" v-if="!!sign" class="shudan-shadow" :style="absoluteStyle()" />
-        <div
-            key="inner"
-            v-if="!!sign"
-            :class="['shudan-inner', 'shudan-stone-image',
-                     `shudan-random_${random}`, `shudan-sign_${sign}`]"
-            :style="absoluteStyle()"
-        >
-            {{ sign }}
-        </div>
-        <div
-            key="marker"
-            v-if="!!sign && !!marker"
-            class="shudan-marker"
-            :title="marker.label"
-            :style="absoluteStyle()"
         />
+    <div
+        key="stone"
+        class="shudan-stone"
+        :style="absoluteStyle(2)"
+        >
+        <div
+            v-if="!!sign"
+            key="shadow"
+            class="shudan-shadow"
+            :style="absoluteStyle()"
+            />
+        <div
+            v-if="!!sign"
+            key="inner"
+            :class="[
+                'shudan-inner',
+                'shudan-stone-image',
+                `shudan-random_${random}`,
+                `shudan-sign_${sign}`
+            ]"
+            :style="absoluteStyle()"
+            v-text="sign"
+            />
+        <div
+            v-if="!!sign && !!marker"
+            key="marker"
+            class="shudan-marker"
+            :style="absoluteStyle()"
+            :title="marker.label"
+            />
     </div>
 
-    <div key="paint" v-if="!!paint" class="shudan-paint" :style="absoluteStyle(3)" />
-    <div key="selection" v-if="!!selected" class="shudan-selection" :style="absoluteStyle(4)" />
-
-    <div key="heat" class="shudan-heat" :style="absoluteStyle(5)" />
-    <div key="heatlabel" v-if="!!heat" class="shudan-heatlabel" :style="absoluteStyle(6)">{{ heat.text && heat.text.toString() }}</div>
+    <div
+        v-if="!!paint"
+        key="paint"
+        class="shudan-paint"
+        :style="absoluteStyle(3)"
+        />
+    <div
+        v-if="selected"
+        key="selection"
+        class="shudan-selection"
+        :style="absoluteStyle(4)"
+        />
+    <div
+        key="heat"
+        class="shudan-heat"
+        :style="absoluteStyle(5)"
+        />
+    <div
+        v-if="!!heat"
+        key="heatlabel"
+        class="shudan-heatlabel"
+        :style="absoluteStyle(6)"
+        v-text="heat.text && heat.text.toString()"
+        />
 </div>
 </template>
 
 <script>
 export default {
     props: {
-        position: Array,
-        shift: Number,
-        random: Number, // XXX: 没有shudan-random_*样式，这个参数是为什么预留的？
-        sign: Number,
-        selected: Boolean,
-        heat: Object,
-        paint: Number,
-        dimmed: Boolean,
-        marker: Object,
-        ghostStone: Object,
-        animate: Boolean, // 触发落子效果
+        position: {
+            type: Array,
+            required: true,
+            default: undefined
+        },
+
+        sign: {
+            type: Number,
+            required: true,
+            default: 0
+        },
+
+        selected: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+
+        dimmed: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+
+        animate: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+
+        shift: {
+            type: Number,
+            required: true,
+            default: undefined
+        },
+
+        random: {
+            type: Number,
+            required: true,
+            default: 0
+        },
+
+        paint: {
+            type: Number,
+            default: undefined
+        },
+
+        heat: { 
+            type: Object,
+            default: undefined
+        },
+
+        marker: {
+            type: Object,
+            default: undefined
+        },
+
+        ghostStone: {
+            type: Object,
+            default: undefined
+        }
     },
 
     methods: {

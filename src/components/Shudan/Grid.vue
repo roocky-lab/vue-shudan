@@ -28,12 +28,12 @@ export default {
 
         hoshis: {
             type: Array,
-            default: undefined
+            required: true
         }
     },
 
     computed: {
-        _lines: function () {
+        _lines() {
             const { vertexSize, width, height, xs, ys } = this;
             const halfVertexSize = vertexSize / 2;
             const [x, y] = [xs[0], ys[0]].map(i => i === 0 ?  halfVertexSize : 0);
@@ -65,11 +65,11 @@ export default {
             ];
         },
 
-        _points: function () {
+        _points() {
             const { vertexSize, xs, ys, hoshis = [] } = this;
             const halfVertexSize = vertexSize / 2; 
             const convert = val => Math.floor((2 * val + 1) * halfVertexSize) + .5;
-            let result = [];
+            const result = [];
             hoshis.forEach(([x, y]) => {
                 const [i, j] = [xs.indexOf(x), ys.indexOf(y)];
                 if (i >= 0 && j >= 0) {
@@ -88,20 +88,22 @@ export default {
 <template>
 <svg class="shudan-grid">
     <rect
-        v-for="(l, i) in _lines" :key="`l${i}`"
+        v-for="(l, i) in _lines"
+        :key="`l${i}`"
         :class="l.classes"
         :x="l.x"
         :y="l.y"
         :width="l.width"
         :height="l.height"
-    />
+        />
     <circle
-        v-for="(p, i) in _points" :key="`p${i}`"
+        v-for="(p, i) in _points"
+        :key="`p${i}`"
         class="shudan-hoshi"
         :cx="p.x"
         :cy="p.y"
         r=".1em"
-    />
+        />
 </svg>
 </template>
 
