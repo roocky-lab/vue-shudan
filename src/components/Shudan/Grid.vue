@@ -1,11 +1,6 @@
 <script>
 export default {
     props: {
-        vertexSize: {
-            type: Number,
-            required: true
-        },
-
         width: {
             type: Number,
             required: true
@@ -33,49 +28,47 @@ export default {
     },
 
     computed: {
-        _lines() {
-            const { vertexSize, width, height, xs, ys } = this;
-            const halfVertexSize = vertexSize / 2;
-            const [x, y] = [xs[0], ys[0]].map(i => i === 0 ?  halfVertexSize : 0);
+        lines() {
+            const { width, height, xs, ys } = this;
+            const [x, y] = [xs[0], ys[0]].map(i => i === 0 ?  0.5 : 0);
             const calcLen = (val, sets, size) => {
                 return sets[sets.length - 1] === size - 1
-                    ? Math.floor((2 * sets.length - 1) * halfVertexSize - val)
-                    : Math.floor(sets.length * vertexSize - val);
+                    ? (2 * sets.length - 1) * 0.5 - val
+                    : sets.length - val;
             };
 
             return [
                 ...ys.map((_, i) => {
                     return {
                         classes: 'shudan-gridline shudan-horizontal',
-                        x: Math.floor(x),
-                        y: Math.floor((2 * i + 1) * halfVertexSize),
-                        width: calcLen(x, xs, width),
-                        height: 1
+                        x: `${x}em`,
+                        y: `${(2 * i + 1) * 0.5}em`,
+                        width: `${calcLen(x, xs, width)}em`,
+                        height: '1px'
                     };
                 }),
                 ...xs.map((_, i) => {
                     return {
                         classes: 'shudan-gridline shudan-vertical',
-                        x: Math.floor((2 * i + 1) * halfVertexSize),
-                        y: Math.floor(y),
-                        width: 1,
-                        height: calcLen(y, ys, height)
+                        x: `${(2 * i + 1) * 0.5}em`,
+                        y: `${y}em`,
+                        width: '1px',
+                        height: `${calcLen(y, ys, height)}em`
                     };
-                }),
+                })
             ];
         },
 
-        _points() {
-            const { vertexSize, xs, ys, hoshis = [] } = this;
-            const halfVertexSize = vertexSize / 2; 
-            const convert = val => Math.floor((2 * val + 1) * halfVertexSize) + .5;
+        points() {
+            const { xs, ys, hoshis = [] } = this;
+            const convert = val => (2 * val + 1) * 0.5;
             const result = [];
             hoshis.forEach(([x, y]) => {
                 const [i, j] = [xs.indexOf(x), ys.indexOf(y)];
                 if (i >= 0 && j >= 0) {
                     result.push({
-                        x: convert(i),
-                        y: convert(j),
+                        x: `calc(${convert(i)}em + .5px)`,
+                        y: `calc(${convert(j)}em + .5px)`
                     });
                 }
             });
@@ -88,7 +81,7 @@ export default {
 <template>
 <svg class="shudan-grid">
     <rect
-        v-for="(l, i) in _lines"
+        v-for="(l, i) in lines"
         :key="`l${i}`"
         :class="l.classes"
         :x="l.x"
@@ -97,7 +90,7 @@ export default {
         :height="l.height"
         />
     <circle
-        v-for="(p, i) in _points"
+        v-for="(p, i) in points"
         :key="`p${i}`"
         class="shudan-hoshi"
         :cx="p.x"

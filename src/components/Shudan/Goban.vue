@@ -1,139 +1,4 @@
-<template>
-<div
-    class="shudan-goban shudan-goban-image"
-    :class="{'shudan-busy': busy, 'shudan-coordinates': showCoordinates}"
-    :style="{
-        'display': 'inline-grid',
-        'gridTemplateRows': showCoordinates ? '1em 1fr 1em' : '1fr',
-        'gridTemplateColumns': showCoordinates ? '1em 1fr 1em' : '1fr',
-        'fontSize': `${vertexSize}px`,
-        'lineHeight': '1em'
-    }"
-    >
-    <!-- 上侧及左侧坐标标签 -->
-    <Coord
-        v-if="showCoordinates"
-        style="grid-area: 1 / 2 / auto / auto;"
-        dir="x"
-        :sets="xs"
-        :labels="coordX"
-        />
-    <Coord
-        v-if="showCoordinates"
-        style="grid-area: 2 / 1 / auto / auto;"
-        dir="y"
-        :sets="ys"
-        :size="height"
-        :labels="coordY"
-        />
-
-    <!-- 中心区 -->
-    <div
-        class="shudan-content"
-        :style="{
-            position: 'relative',
-            width: `${xs.length}em`,
-            height: `${ys.length}em`,
-            gridRow: showCoordinates ? '2' : '1',
-            gridColumn: showCoordinates ? '2' : '1'
-        }"
-        >
-        <!-- 棋盘网线及星位 -->
-        <Grid
-            :vertex-size="vertexSize"
-            :width="width"
-            :height="height"
-            :xs="xs"
-            :ys="ys"
-            :hoshis="hoshis"
-            />
-        <!-- 落点区域 -->
-        <div
-            class="shudan-vertices"
-            :style="{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${xs.length}, 1em)`,
-                gridTemplateRows: `repeat(${ys.length}, 1em)`,
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 1
-            }"
-            >
-            <template v-for="y in ys">
-                <template v-for="x in xs">
-                    <Vertex
-                        :key="[x, y].join('-')"
-                        :position="[x, y]"
-                        :shift="fuzzyStonePlacement ? shiftMap && shiftMap[y] && shiftMap[y][x] : 0"
-                        :random="randomMap && randomMap[y] && randomMap[y][x]"
-                        :sign="signMap && signMap[y] && signMap[y][x]"
-                        :heat="heatMap && heatMap[y] && heatMap[y][x]"
-                        :paint="paintMap && paintMap[y] && paintMap[y][x]"
-                        :marker="markerMap && markerMap[y] && markerMap[y][x]"
-                        :ghost-stone="ghostStoneMap && ghostStoneMap[y] && ghostStoneMap[y][x]"
-                        :dimmed="dimmedVertices && dimmedVertices.some(v => helper.vertexEquals(v, [x, y]))"
-                        :selected="selectedVertices && selectedVertices.some(v => helper.vertexEquals(v, [x, y]))"
-                        :animate="selectedVertices && animatedVertices.some(v => helper.vertexEquals(v, [x, y]))"
-                        @click="$emit('click', $event)"
-                        @mousedown="$emit('mousedown', $event)"
-                        @mouseup="$emit('mouseup', $event)"
-                        @mousemove="$emit('mousemove', $event)"
-                        @mouseenter="$emit('mouseenter', $event)"
-                        @mouseleave="$emit('mouseleave', $event)"
-                        />
-                </template>
-            </template>
-        </div>
-
-        <div
-            class="shudan-lines"
-            style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 2;"
-            >
-            <div
-                :style="{
-                    position: 'absolute',
-                    top: `-${rangeY[0]}em`,
-                    left: `-${rangeX[0]}em`,
-                    width: `${width}em`,
-                    height: `${height}em`,
-                }"
-                >
-                <ULine
-                    v-for="(l, i) in lines"
-                    :key="i"
-                    :pos1="l.v1"
-                    :pos2="l.v2"
-                    :type="l.type"
-                    />
-            </div>
-        </div>
-    </div>
-
-    <!-- 下侧及右侧坐标标签 -->
-    <Coord
-        v-if="showCoordinates"
-        style="grid-area: 2 / 3 / auto / auto;"
-        dir="y"
-        :sets="ys"
-        :size="height"
-        :labels="coordY"
-        />
-    <Coord
-        v-if="showCoordinates"
-        style="grid-area: 3 / 2 / auto / auto;"
-        dir="x"
-        :sets="xs"
-        :labels="coordX"
-        />
-</div>
-</template>
-
-
 <script>
-//import { Coord, CoordY } from './Coord';
 import Coord from './Coord.vue';
 import Grid from './Grid.vue';
 import Vertex from './Vertex.vue';
@@ -150,26 +15,41 @@ export default {
     },
 
     props: {
-        vertexSize: Number,
-        animate: Boolean,
-        busy: Boolean,
+        vertexSize: {
+            type: Number,
+            default: 16
+        },
+    
+        animate: {
+            type: Boolean,
+            default: false
+        },
+
+        busy: {
+            type: Boolean,
+            default: false
+        },
+    
         rangeX: {
             type: Array,
-            default: function () {
-                return [0, Infinity];
-            }
+            default: () =>  [0, Infinity]
         },
+    
         rangeY: {
             type: Array,
-            default: function () {
-                return [0, Infinity];
-            }
+            default: () =>  [0, Infinity]
         },
-        signMap: Array,
+
+        signMap: {
+            type: Array,
+            default: () => []
+        },
+
         coordX: {
             type: Array,
             default: () => [...helper.alpha]
         },
+
         coordY: {
             type: Array,
             default() {
@@ -177,21 +57,64 @@ export default {
                 return [...Array(height)].map((_, i) => height - i);
             }
         },
-        showCoordinates: Boolean,
-        fuzzyStonePlacement: Boolean,
-        animateStonePlacement: Boolean,
+
+        showCoordinates: {
+            type: Boolean,
+            default: false
+        },
+
+        fuzzyStonePlacement: {
+            type: Boolean,
+            default: false
+        },
+
+        animateStonePlacement: {
+            type: Boolean,
+            default: false
+        },
+    
         paintMap: {
             type: Array,
-            default: function () {
-                return [];
-            }
+            default: undefined
         },
-        heatMap: Array,
-        markerMap: Array,
-        ghostStoneMap: Array,
-        lines: Array,
-        dimmedVertices: Array,
-        selectedVertices: Array
+
+        heatMap: {
+            type: Array,
+            default: undefined
+        },
+
+        markerMap: {
+            type: Array,
+            default: undefined
+        },
+    
+        ghostStoneMap: {
+            type: Array,
+            default: undefined
+        },
+
+        lines: {
+            type: Array,
+            validator(params) {
+                const keys = ["type", "v1", "v2"];
+                for (let p of params)
+                    for (let k of keys)
+                        if (!(k in p))
+                            return false;
+                return true;
+            },
+            default: undefined
+        },
+
+        dimmedVertices: {
+            type: Array,
+            default: undefined
+        },
+
+        selectedVertices: {
+            type: Array,
+            default: undefined
+        }
     },
 
     data: function () {
@@ -209,7 +132,7 @@ export default {
 
     watch: {
         signMap: {
-            handler: function (signMap, oldSignMap) {
+            handler(signMap, oldSignMap) {
                 let width = signMap.length === 0 ? 0 : signMap[0].length;
                 let height = signMap.length;
                 if (this.width === width && this.height === height) {
@@ -235,19 +158,19 @@ export default {
     },
 
     computed: {
-        xs: function () {
+        xs() {
             let { width, rangeX } = this;
             return helper.range(width).slice(rangeX[0], rangeX[1] + 1);
         },
 
-        ys: function () {
+        ys() {
             let { height, rangeY } = this;
             return helper.range(height).slice(rangeY[0], rangeY[1] + 1);
         }
     },
 
     methods: {
-        updateAnimatedVertices: function () {
+        updateAnimatedVertices() {
             if (this.animatedVertices.length > 0) {
                 // Handle stone animation
                 for (let [x, y] of this.animatedVertices) {
@@ -270,6 +193,176 @@ export default {
 };
 </script>
 
+<template>
+<div
+    :class="[
+        'shudan-goban shudan-goban-image',
+        {
+            'shudan-busy': busy,
+            'shudan-coordinates': showCoordinates
+        }
+    ]"
+    :style="`fontSize: ${vertexSize}px;`"
+    >
+    <!-- 中心区 -->
+    <div
+        class="center shudan-content"
+        :style="{
+            position: 'relative',
+            width: `${xs.length}em`,
+            height: `${ys.length}em`,
+        }"
+        >
+        <!-- 棋盘网线及星位 -->
+        <Grid
+            :width="width"
+            :height="height"
+            :xs="xs"
+            :ys="ys"
+            :hoshis="hoshis"
+            />
+
+        <!-- 落点区域 -->
+        <div
+            class="shudan-vertices"
+            :style="{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${xs.length}, 1em)`,
+                gridTemplateRows: `repeat(${ys.length}, 1em)`
+            }"
+            >
+            <template v-for="y in ys">
+                <Vertex
+                    v-for="x in xs"
+                    :key="[x, y].join('-')"
+                    :position="[x, y]"
+                    :shift="fuzzyStonePlacement ? shiftMap && shiftMap[y] && shiftMap[y][x] : 0"
+                    :random="randomMap && randomMap[y] && randomMap[y][x]"
+                    :sign="signMap && signMap[y] && signMap[y][x]"
+                    :heat="heatMap && heatMap[y] && heatMap[y][x]"
+                    :paint="paintMap && paintMap[y] && paintMap[y][x]"
+                    :marker="markerMap && markerMap[y] && markerMap[y][x]"
+                    :ghost-stone="ghostStoneMap && ghostStoneMap[y] && ghostStoneMap[y][x]"
+                    :dimmed="dimmedVertices && dimmedVertices.some(v => helper.vertexEquals(v, [x, y]))"
+                    :selected="selectedVertices && selectedVertices.some(v => helper.vertexEquals(v, [x, y]))"
+                    :animate="animatedVertices && animatedVertices.some(v => helper.vertexEquals(v, [x, y]))"
+                    @click="$emit('click', $event)"
+                    @mousedown="$emit('mousedown', $event)"
+                    @mouseup="$emit('mouseup', $event)"
+                    @mousemove="$emit('mousemove', $event)"
+                    @mouseenter="$emit('mouseenter', $event)"
+                    @mouseleave="$emit('mouseleave', $event)"
+                    />
+            </template>
+        </div>
+
+        <!-- 指示线 -->
+        <div class="shudan-lines">
+            <div
+                :style="{
+                    position: 'absolute',
+                    top: `-${rangeY[0]}em`,
+                    left: `-${rangeX[0]}em`,
+                    width: `${width}em`,
+                    height: `${height}em`,
+                }"
+                >
+                <ULine
+                    v-for="(l, i) in lines"
+                    :key="i"
+                    :v1="l.v1"
+                    :v2="l.v2"
+                    :type="l.type"
+                    />
+            </div>
+        </div>
+    </div>
+
+    <!-- 上左右下的刻度标签 -->
+    <Coord
+        v-if="showCoordinates"
+        class="top"
+        dir="x"
+        :sets="xs"
+        :labels="coordX"
+        />
+    <Coord
+        v-if="showCoordinates"
+        class="left"
+        dir="y"
+        :sets="ys"
+        :labels="coordY"
+        />
+    <Coord
+        v-if="showCoordinates"
+        class="right"
+        dir="y"
+        :sets="ys"
+        :labels="coordY"
+        />
+    <Coord
+        v-if="showCoordinates"
+        class="bottom"
+        dir="x"
+        :sets="xs"
+        :labels="coordX"
+        />
+</div>
+</template>
+
 <style scoped>
 @import "./css/goban.css";
+
+.shudan-goban {
+        line-height: 1em;
+        display: inline-grid;
+    }
+    .shudan-goban.shudan-coordinates {
+        grid-template-rows: 1em 1fr 1em;
+        grid-template-columns: 1em 1fr 1em;
+    }
+    .shudan-goban:not(.shudan-coordinates) {
+        grid-template-rows: 0 1fr 0;
+        grid-template-columns: 0 1fr 0;
+}
+
+.top.shudan-coordx {
+    grid-area: 1 / 2 / auto / auto;
+}
+
+.left.shudan-coordy {
+    grid-area: 2 / 1 / auto / auto;
+}
+
+.center.shudan-content {
+    grid-area: 2 / 2 / auto / auto;
+}
+
+.right.shudan-coordy {
+    grid-area: 2 / 3 / auto / auto;
+}
+
+.bottom.shudan-coordx {
+    grid-area: 3 / 2 / auto / auto;
+}
+
+.shudan-vertices {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.shudan-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+}
 </style>

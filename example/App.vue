@@ -9,32 +9,28 @@
             <button
                 type="button"
                 @click="vertexSize = Math.max(vertexSize - 4, 4)"
-                >
-                -
-            </button>
+                v-text="'-'"
+                />
             <button
                 type="button"
                 title="Reset"
                 @click="vertexSize = 24"
-                >
-                •
-            </button>
+                v-text="'•'"
+                />
             <button
                 type="button"
                 @click="vertexSize += 4"
-                >
-                +
-            </button>
+                v-text="'+'"
+                />
         </p>
         <p style="margin: 0px 0px 0.5em;">
             Stones:
             <button
                 type="button"
                 title="Reset"
-                @click="signMap = rawSignMap"
-                >
-                •
-            </button>
+                @click="signMap = JSON.parse(JSON.stringify(rawSignMap))"
+                v-text="'•'"
+                />
         </p>
         <div>
             <template v-for="(c, i) in checkBoxs">
@@ -48,7 +44,10 @@
                         :value="c.stateKey"
                         v-model="checkedNames"
                         >
-                    <span style="user-select: none;">{{ c.text }}</span>
+                    <span
+                        style="user-select: none;"
+                        v-text="c.text"
+                        />
                 </label>
             </template>
         </div>
@@ -90,7 +89,7 @@
 </template>
 
 <script>
-import { Goban } from '../src/components/Shudan';
+import Goban from '../src/components/Shudan';
 
 const chineseCoordx = [
     '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
@@ -253,7 +252,7 @@ export default {
 
     data: function () {
         return {
-            signMap: rawSignMap,
+            signMap: JSON.parse(JSON.stringify(rawSignMap)),
             vertexSize: 24,
             showCoordinates: false,
             alternateCoordinates: false,

@@ -1,3 +1,3 @@
 import Goban from './Goban.vue';
 
-export { Goban };
+export default Goban;
