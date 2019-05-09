@@ -196,21 +196,22 @@ export default {
     methods: {
         updateAnimatedVertices() {
             if (this.animatedVertices.length > 0) {
-                // Handle stone animation
+                // 触发落子滑动效果
                 for (let [x, y] of this.animatedVertices) {
                     this.$set(this.shiftMap[y], x, helper.random(7) + 1);
                     helper.readjustShifts(this.shiftMap, [x, y]);
                 }
 
-                // Clear animation classes
-                this.clearAnimatedVerticesHandler = setTimeout(
-                    function (_this) {
-                        _this.animatedVertices = [];
-                        _this.clearAnimatedVerticesHandler = null;
-                    },
-                    this.animationDuration || 200,
-                    this
-                );
+                // 延后清除效果(这样后续还可以再触发)
+                this.$nextTick(function () {
+                    this.clearAnimatedVerticesHandler = setTimeout(
+                        () => {
+                            this.animatedVertices = [];
+                            this.clearAnimatedVerticesHandler = null;
+                        },
+                        200,
+                    );
+                });
             }
         }
     }
