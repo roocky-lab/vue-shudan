@@ -14,8 +14,15 @@ export default {
 
         labels: {
             type: Array,
-            required: true,
-            default: () => [' ']
+            required: true
+        }
+    },
+
+    computed: {
+        _labels() {
+            const { sets = [], labels = [' '] } = this;
+            const sub = labels[labels.length - 1];
+            return sets.map((t => labels[t] !== undefined ? labels[t] : sub));
         }
     }
 };
@@ -24,17 +31,14 @@ export default {
 <template>
 <div :class="`shudan-coord${dir}`">
     <div
-        v-for="(t, i) in sets"
+        v-for="(t, i) in _labels"
         :key="i"
         >
-        <span
-            v-text="labels[t] != undefined
-                ? labels[t]
-                : labels[labels.length - 1]"
-            />
+        <span v-text="t" />
     </div>
 </div>
 </template>
+
 
 <style scoped>
 .shudan-coordx {

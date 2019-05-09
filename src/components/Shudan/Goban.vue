@@ -166,6 +166,30 @@ export default {
         ys() {
             let { height, rangeY } = this;
             return helper.range(height).slice(rangeY[0], rangeY[1] + 1);
+        },
+
+        vertices() {
+            const { xs, ys, fuzzyStonePlacement, shiftMap, randomMap,
+                    signMap, heatMap, paintMap, markerMap, ghostStoneMap,
+                    dimmedVertices, selectedVertices, animatedVertices} = this;
+            const result = [];
+            ys.forEach(y => { xs.forEach(x => {
+                result.push({
+                    key: `${x}-${y}`,
+                    position: [x, y],
+                    shift: fuzzyStonePlacement ? shiftMap && shiftMap[y] && shiftMap[y][x] : 0,
+                    random: randomMap && randomMap[y] && randomMap[y][x],
+                    sign: signMap && signMap[y] && signMap[y][x],
+                    heat: heatMap && heatMap[y] && heatMap[y][x],
+                    paint: paintMap && paintMap[y] && paintMap[y][x],
+                    marker: markerMap && markerMap[y] && markerMap[y][x],
+                    ghostStone: ghostStoneMap && ghostStoneMap[y] && ghostStoneMap[y][x],
+                    dimmed: dimmedVertices && dimmedVertices.some(v => helper.vertexEquals(v, [x, y])),
+                    selected: selectedVertices && selectedVertices.some(v => helper.vertexEquals(v, [x, y])),
+                    animate: animatedVertices && animatedVertices.some(v => helper.vertexEquals(v, [x, y]))
+                });
+            });});
+            return result;
         }
     },
 
@@ -231,29 +255,26 @@ export default {
                 gridTemplateRows: `repeat(${ys.length}, 1em)`
             }"
             >
-            <template v-for="y in ys">
-                <Vertex
-                    v-for="x in xs"
-                    :key="[x, y].join('-')"
-                    :position="[x, y]"
-                    :shift="fuzzyStonePlacement ? shiftMap && shiftMap[y] && shiftMap[y][x] : 0"
-                    :random="randomMap && randomMap[y] && randomMap[y][x]"
-                    :sign="signMap && signMap[y] && signMap[y][x]"
-                    :heat="heatMap && heatMap[y] && heatMap[y][x]"
-                    :paint="paintMap && paintMap[y] && paintMap[y][x]"
-                    :marker="markerMap && markerMap[y] && markerMap[y][x]"
-                    :ghost-stone="ghostStoneMap && ghostStoneMap[y] && ghostStoneMap[y][x]"
-                    :dimmed="dimmedVertices && dimmedVertices.some(v => helper.vertexEquals(v, [x, y]))"
-                    :selected="selectedVertices && selectedVertices.some(v => helper.vertexEquals(v, [x, y]))"
-                    :animate="animatedVertices && animatedVertices.some(v => helper.vertexEquals(v, [x, y]))"
-                    @click="$emit('click', $event)"
-                    @mousedown="$emit('mousedown', $event)"
-                    @mouseup="$emit('mouseup', $event)"
-                    @mousemove="$emit('mousemove', $event)"
-                    @mouseenter="$emit('mouseenter', $event)"
-                    @mouseleave="$emit('mouseleave', $event)"
-                    />
-            </template>
+            <Vertex
+                v-for="v in vertices"
+                :key="v.key"
+                :shift="v.shift"
+                :random="v.random"
+                :sign="v.sign"
+                :heat="v.heat"
+                :paint="v.paint"
+                :marker="v.marker"
+                :ghost-stone="v.ghostStone"
+                :dimmed="v.dimmed"
+                :selected="v.selected"
+                :animate="v.animate"
+                @click="$emit('click', v.position)"
+                @mousedown="$emit('mousedown', v.position)"
+                @mouseup="$emit('mouseup', v.position)"
+                @mousemove="$emit('mousemove', v.position)"
+                @mouseenter="$emit('mouseenter', v.position)"
+                @mouseleave="$emit('mouseleave', v.position)"
+                />
         </div>
 
         <!-- 指示线 -->

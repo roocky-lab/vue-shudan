@@ -1,12 +1,6 @@
 <script>
 export default {
     props: {
-        position: {
-            type: Array,
-            required: true,
-            default: undefined
-        },
-
         sign: {
             type: Number,
             required: true,
@@ -34,7 +28,7 @@ export default {
         shift: {
             type: Number,
             required: true,
-            default: undefined
+            default: 0
         },
 
         random: {
@@ -62,40 +56,45 @@ export default {
             type: Object,
             default: undefined
         }
+    },
+
+    computed: {
+        classes() {
+            const { sign, random, shift, heat, paint, dimmed, selected, animate, marker, ghostStone } = this;
+            return [
+                'shudan-vertex',
+                `shudan-sign_${sign}`,
+                `shudan-random_${random}`,
+                {
+                    [`shudan-shift_${shift}`]: !!shift,
+                    [`shudan-heat_${heat && heat.strength}`]: !!heat && !!heat.strength,
+                    [`shudan-paint_${paint}`]: !!paint,
+                    'shudan-dimmed': dimmed,
+                    'shudan-selected': selected,
+                    'shudan-animate': animate,
+                    [`shudan-marker_${marker && marker.type}`]: !!marker && !!marker.type,
+                    'shudan-smalllabel': !!marker && marker.type === 'label'
+                        && !!marker.label && (marker.label.includes('\n') || marker.label.length >= 3),
+                    [`shudan-ghost_${ghostStone && ghostStone.sign}`]: !!ghostStone && !!ghostStone.sign,
+                    [`shudan-ghost_${ghostStone && ghostStone.type}`]: !!ghostStone && !!ghostStone.type,
+                    'shudan-ghost_faint': !!ghostStone && !!ghostStone.faint
+                }
+            ];
+        }
     }
 };
 </script>
 
 <template>
 <div
-    :data-x="position[0]"
-    :data-y="position[1]"
-    :class="[
-        'shudan-vertex',
-        `shudan-random_${random}`,
-        `shudan-sign_${sign}`,
-        {
-            [`shudan-shift_${shift}`]: !!shift,
-            [`shudan-heat_${heat && heat.strength}`]: !!heat && !!heat.strength,
-            [`shudan-paint_${paint}`]: !!paint,
-            'shudan-dimmed': dimmed,
-            'shudan-selected': selected,
-            'shudan-animate': animate,
-            [`shudan-marker_${marker && marker.type}`]: !!marker && !!marker.type,
-            'shudan-smalllabel': !!marker && marker.type === 'label'
-                && !!marker.label && (marker.label.includes('\n') || marker.label.length >= 3),
-            [`shudan-ghost_${ghostStone && ghostStone.sign}`]: !!ghostStone && !!ghostStone.sign,
-            [`shudan-ghost_${ghostStone && ghostStone.type}`]: !!ghostStone && !!ghostStone.type,
-            'shudan-ghost_faint': !!ghostStone && !!ghostStone.faint
-        }
-    ]"
+    :class="classes"
     style="position: relative;"
-    @click="$emit('click', position)"
-    @mousedown="$emit('mousedown', position)"
-    @mouseup="$emit('mouseup', position)"
-    @mousemove="$emit('mousemove', position)"
-    @mouseenter="$emit('mouseenter', position)"
-    @mouseleave="$emit('mouseleave', position)"
+    @click="$emit('click')"
+    @mousedown="$emit('mousedown')"
+    @mouseup="$emit('mouseup')"
+    @mousemove="$emit('mousemove')"
+    @mouseenter="$emit('mouseenter')"
+    @mouseleave="$emit('mouseleave')"
     >
     <div
         v-if="!sign && !!marker"
@@ -152,6 +151,7 @@ export default {
         style="z-index: 4;"
         />
     <div
+        v-if="!!heat"
         key="heat"
         class="shudan-heat"
         style="z-index: 5;"
