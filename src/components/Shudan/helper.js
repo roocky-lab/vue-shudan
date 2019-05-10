@@ -29,62 +29,20 @@ export function getHoshis(width, height) {
     return result;
 }
 
-export function readjustShifts(shiftMap, vertex = null) {
-    if (vertex == null) {
-        for (let y = 0; y < shiftMap.length; y++) {
-            for (let x = 0; x < shiftMap[0].length; x++) {
-                readjustShifts(shiftMap, [x, y]);
-            }
-        }
-    } else {
-        let [x, y] = vertex;
-        let direction = shiftMap[y][x];
-
-        let data = [
-            // Left
-            [[1, 5, 8], [x - 1, y], [3, 7, 6]],
-            // Top
-            [[2, 5, 6], [x, y - 1], [4, 7, 8]],
-            // Right
-            [[3, 7, 6], [x + 1, y], [1, 5, 8]],
-            // Bottom
-            [[4, 7, 8], [x, y + 1], [2, 5, 6]],
-        ];
-
-        for (let [directions, [qx, qy], removeShifts] of data) {
-            if (!directions.includes(direction)) continue;
-
-            if (shiftMap[qy] && removeShifts.includes(shiftMap[qy][qx])) {
-                shiftMap[qy][qx] = 0;
-            }
-        }
-    }
-
-    return shiftMap;
-}
-
 export function diffSignMap(before, after) {
-    if (
-        before === after
-        || before.length === 0
-        || before.length !== after.length
-        || before[0].length !== after[0].length
-    ) {
+    if (before === after || before.length === 0 || before.length !== after.length) {
         return [];
     }
 
-    let result = [];
-
-    for (let y = 0; y < before.length; y++) {
-        for (let x = 0; x < before[0].length; x++) {
-            if (before[y][x] === 0 && after[y] != null && after[y][x]) {
-                result.push([x, y]);
-            }
+    const result = [];
+    for (let i = 0; i < before.length; ++i) {
+        if (before[i] === 0 && after[i] != null && after[i] !== 0) {
+            result.push(i);
         }
     }
-
     return result;
 }
 
-let helper = { alpha, vertexEvents, range, random, neighborhood, vertexEquals, lineEquals, getHoshis, readjustShifts, diffSignMap };
+
+let helper = { alpha, vertexEvents, range, random, neighborhood, vertexEquals, lineEquals, getHoshis, diffSignMap };
 export default helper;

@@ -15,6 +15,16 @@ export default {
     },
 
     props: {
+        width: {
+            type: Number,
+            default: 19
+        },
+
+        height: {
+            type: Number,
+            default: 19
+        },
+
         vertexSize: {
             type: Number,
             default: 16
@@ -53,7 +63,7 @@ export default {
         coordY: {
             type: Array,
             default() {
-                const height = this.signMap.length;
+                const { height } = this;
                 return [...Array(height)].map((_, i) => height - i);
             }
         },
@@ -106,12 +116,12 @@ export default {
             default: undefined
         },
 
-        dimmedVertices: {
+        dimmedMap: {
             type: Array,
             default: undefined
         },
 
-        selectedVertices: {
+        selectedMap: {
             type: Array,
             default: undefined
         }
@@ -119,77 +129,90 @@ export default {
 
     data: function () {
         return {
-            width: 0,
-            height: 0,
-            hoshis: [],
-            shiftMap: [],
-            randomMap: [],
             animatedVertices: [],
-            clearAnimatedVerticesHandler: null,
-            helper
+            clearAnimatedVerticesHandler: null
         };
     },
 
-    watch: {
-        signMap: {
-            handler(signMap, oldSignMap) {
-                let width = signMap.length === 0 ? 0 : signMap[0].length;
-                let height = signMap.length;
-                if (this.width === width && this.height === height) {
-                    if (this.animateStonePlacement
-                        && this.fuzzyStonePlacement
-                        && this.clearAnimatedVerticesHandler == null
-                    ) {
-                        this.animatedVertices = helper.diffSignMap(oldSignMap, signMap);
-                        this.updateAnimatedVertices();
-                    }
-                } else { // 尺寸变化
-                    this.width = width;
-                    this.height = height;
-                    this.hoshis = helper.getHoshis(width, height);
-                    this.shiftMap = helper.readjustShifts(signMap.map(row => row.map(() => helper.random(8))));
-                    this.randomMap = signMap.map(row => row.map(() => helper.random(4)));
-                    this.animatedVertices = [];
-                    this.clearAnimatedVerticesHandler = null;
-                }
-            },
-            immediate: true
-        }
-    },
-
     computed: {
+        size() {
+            const { width, height } = this;
+            return width * height;
+        },
+
+        shiftMap() {
+            const { size, width, readjustShifts } = this;
+            const shiftMap = [...Array(size)].map(() => helper.random(8));
+            shiftMap.forEach((_, i) => readjustShifts(shiftMap, i, width));
+            return shiftMap;
+        },
+
+        randomMap() {
+            const { size } = this;
+            return [...Array(size)].map(() => helper.random(4));
+        },
+
         xs() {
-            let { width, rangeX } = this;
+            const { width, rangeX } = this;
             return helper.range(width).slice(rangeX[0], rangeX[1] + 1);
         },
 
         ys() {
-            let { height, rangeY } = this;
+            const { height, rangeY } = this;
             return helper.range(height).slice(rangeY[0], rangeY[1] + 1);
+        },
+
+        hoshis() {
+            const { width, height } = this;
+            return helper.getHoshis(width, height);
         },
 
         vertices() {
             const { xs, ys, fuzzyStonePlacement, shiftMap, randomMap,
                     signMap, heatMap, paintMap, markerMap, ghostStoneMap,
-                    dimmedVertices, selectedVertices, animatedVertices} = this;
+                    dimmedMap, selectedMap, animatedVertices, width} = this;
             const result = [];
             ys.forEach(y => { xs.forEach(x => {
+                const offset = y * width + x;
                 result.push({
-                    key: `${x}-${y}`,
-                    position: [x, y],
-                    shift: fuzzyStonePlacement ? shiftMap && shiftMap[y] && shiftMap[y][x] : 0,
-                    random: randomMap && randomMap[y] && randomMap[y][x],
-                    sign: signMap && signMap[y] && signMap[y][x],
-                    heat: heatMap && heatMap[y] && heatMap[y][x],
-                    paint: paintMap && paintMap[y] && paintMap[y][x],
-                    marker: markerMap && markerMap[y] && markerMap[y][x],
-                    ghostStone: ghostStoneMap && ghostStoneMap[y] && ghostStoneMap[y][x],
-                    dimmed: dimmedVertices && dimmedVertices.some(v => helper.vertexEquals(v, [x, y])),
-                    selected: selectedVertices && selectedVertices.some(v => helper.vertexEquals(v, [x, y])),
-                    animate: animatedVertices && animatedVertices.some(v => helper.vertexEquals(v, [x, y]))
+                    offset,
+                    shift: fuzzyStonePlacement ? shiftMap && shiftMap[offset] : 0,
+                    random: randomMap && randomMap[offset],
+                    sign: signMap && signMap[offset],
+                    heat: heatMap && heatMap[offset],
+                    paint: paintMap && paintMap[offset],
+                    marker: markerMap && markerMap[offset],
+                    ghostStone: ghostStoneMap && ghostStoneMap[offset],
+                    dimmed: dimmedMap && dimmedMap[offset],
+                    selected: selectedMap && selectedMap[offset],
+                    animate: animatedVertices && animatedVertices.some(v => v === offset)
                 });
             });});
             return result;
+        }
+    },
+
+    watch: {
+        size: {
+            handler() {
+                this.animatedVertices = [];
+                this.clearAnimatedVerticesHandler = null;
+            },
+            immediate: true
+        },
+
+        signMap(newSignMap, oldSignMap) {
+            const { animateStonePlacement, fuzzyStonePlacement, clearAnimatedVerticesHandler } = this;
+            if (animateStonePlacement
+                && fuzzyStonePlacement
+                && clearAnimatedVerticesHandler == null
+            ) {
+                const animatedVertices = helper.diffSignMap(oldSignMap, newSignMap);
+                if (animatedVertices.length > 0) {
+                    this.animatedVertices = animatedVertices;
+                    this.updateAnimatedVertices();
+                }
+            }
         }
     },
 
@@ -197,9 +220,9 @@ export default {
         updateAnimatedVertices() {
             if (this.animatedVertices.length > 0) {
                 // 触发落子滑动效果
-                for (let [x, y] of this.animatedVertices) {
-                    this.$set(this.shiftMap[y], x, helper.random(7) + 1);
-                    helper.readjustShifts(this.shiftMap, [x, y]);
+                for (let i of this.animatedVertices) {
+                    this.$set(this.shiftMap, i, helper.random(7) + 1);
+                    this.readjustShifts(this.shiftMap, i, this.width);
                 }
 
                 // 延后清除效果(这样后续还可以再触发)
@@ -212,6 +235,26 @@ export default {
                         200,
                     );
                 });
+            }
+        },
+
+        readjustShifts(shiftMap, offset, width) {
+            const shift = shiftMap[offset];
+            if (!shift) return;
+
+            const table = [
+                [[1, 5, 8], offset - 1, [3, 7, 6]],     // 落点偏左，撞到落点左方偏右的棋子
+                [[2, 5, 6], offset - width, [4, 7, 8]], // 上撞下
+                [[3, 7, 6], offset + 1, [1, 5, 8]],     // 右撞左
+                [[4, 7, 8], offset + width, [2, 5, 6]], // 下撞上
+            ];
+
+            for (let [directions, nearOffset, removeShifts] of table) {
+                const nearShift = shiftMap[nearOffset];
+                if (nearShift
+                    && directions.includes(shift)
+                    && removeShifts.includes(nearShift))
+                    shiftMap.splice(nearOffset, 1, 0); // 被撞到中位
             }
         }
     }
@@ -258,7 +301,7 @@ export default {
             >
             <Vertex
                 v-for="v in vertices"
-                :key="v.key"
+                :key="v.offset"
                 :shift="v.shift"
                 :random="v.random"
                 :sign="v.sign"
@@ -269,12 +312,12 @@ export default {
                 :dimmed="v.dimmed"
                 :selected="v.selected"
                 :animate="v.animate"
-                @click="$emit('click', v.position)"
-                @mousedown="$emit('mousedown', v.position)"
-                @mouseup="$emit('mouseup', v.position)"
-                @mousemove="$emit('mousemove', v.position)"
-                @mouseenter="$emit('mouseenter', v.position)"
-                @mouseleave="$emit('mouseleave', v.position)"
+                @click="$emit('click', v.offset)"
+                @mousedown="$emit('mousedown', v.offset)"
+                @mouseup="$emit('mouseup', v.offset)"
+                @mousemove="$emit('mousemove', v.offset)"
+                @mouseenter="$emit('mouseenter', v.offset)"
+                @mouseleave="$emit('mouseleave', v.offset)"
                 />
         </div>
 
