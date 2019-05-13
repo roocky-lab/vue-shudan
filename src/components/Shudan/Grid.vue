@@ -1,4 +1,7 @@
 <script>
+const lineWidth = 0.042; // 当font-size === 24px, 0.042em约1px
+const convert = val => (2 * val + 1) * 0.5;
+
 export default {
     props: {
         width: {
@@ -42,17 +45,17 @@ export default {
                     return {
                         classes: 'shudan-gridline shudan-horizontal',
                         x: `${x}em`,
-                        y: `${(2 * i + 1) * 0.5}em`,
+                        y: `${convert(i)}em`,
                         width: `${calcLen(x, xs, width)}em`,
-                        height: '1px'
+                        height: `${lineWidth}em`
                     };
                 }),
                 ...xs.map((_, i) => {
                     return {
                         classes: 'shudan-gridline shudan-vertical',
-                        x: `${(2 * i + 1) * 0.5}em`,
+                        x: `${convert(i)}em`,
                         y: `${y}em`,
-                        width: '1px',
+                        width: `${lineWidth}em`,
                         height: `${calcLen(y, ys, height)}em`
                     };
                 })
@@ -61,14 +64,13 @@ export default {
 
         points() {
             const { xs, ys, hoshis = [] } = this;
-            const convert = val => (2 * val + 1) * 0.5;
             const result = [];
             hoshis.forEach(([x, y]) => {
                 const [i, j] = [xs.indexOf(x), ys.indexOf(y)];
                 if (i >= 0 && j >= 0) {
                     result.push({
-                        x: `calc(${convert(i)}em + .5px)`,
-                        y: `calc(${convert(j)}em + .5px)`
+                        x: `${convert(i) + 0.5 * lineWidth}em`,
+                        y: `${convert(j) + 0.5 * lineWidth}em`
                     });
                 }
             });

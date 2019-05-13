@@ -8,18 +8,18 @@
             Size:
             <button
                 type="button"
-                @click="vertexSize = Math.max(vertexSize - 4, 4)"
+                @click="maxSize = Math.max(maxSize - 20, 200)"
                 v-text="'-'"
                 />
             <button
                 type="button"
                 title="Reset"
-                @click="vertexSize = 24"
+                @click="maxSize = 480"
                 v-text="'•'"
                 />
             <button
                 type="button"
-                @click="vertexSize += 4"
+                @click="maxSize += 20"
                 v-text="'+'"
                 />
         </p>
@@ -53,32 +53,31 @@
         </div>
     </form>
 
-    <div>
-        <Goban
-            :vertex-size="vertexSize"
-            :animate="true"
-            :busy="isBusy"
-            :range-x="showCorner ? [8, 18] : undefined"
-            :range-y="showCorner ? [12, 18] : undefined"
-            :coord-x="alternateCoordinates ? chineseCoordx : undefined"
-            :coord-y="alternateCoordinates ? chineseCoordy : undefined"
-            :sign-map="signMap"
-            :show-coordinates="showCoordinates"
-            :fuzzy-stone-placement="fuzzyStonePlacement"
-            :animate-stone-placement="animateStonePlacement"
-            :paint-map="showPaintMap ? paintMap : undefined"
-            :heat-map="showHeatMap ? heatMap : undefined"
-            :marker-map="showMarkerMap ? markerMap : undefined"
-            :ghost-stone-map="showGhostStones ? ghostStoneMap : undefined"
-            :lines="showLines ? [
-                {type: 'line', v1: [15, 6], v2: [12, 15]},
-                {type: 'arrow', v1: [10, 4], v2: [5, 7]}
-            ] : []"
-            :dimmed-map="showDimmedStones ? dimmedMap : []"
-            :selected-map="showSelection ? selectedMap : []"
-            @click="onVertexClick"
-            />
-    </div>
+    <Goban
+        :max-width="maxSize"
+        :max-height="maxSize"
+        :animate="true"
+        :busy="isBusy"
+        :range-x="showCorner ? [8, 18] : undefined"
+        :range-y="showCorner ? [12, 18] : undefined"
+        :coord-x="alternateCoordinates ? chineseCoordx : undefined"
+        :coord-y="alternateCoordinates ? chineseCoordy : undefined"
+        :sign-map="signMap"
+        :show-coordinates="showCoordinates"
+        :fuzzy-stone-placement="fuzzyStonePlacement"
+        :animate-stone-placement="animateStonePlacement"
+        :paint-map="showPaintMap ? paintMap : undefined"
+        :heat-map="showHeatMap ? heatMap : undefined"
+        :marker-map="showMarkerMap ? markerMap : undefined"
+        :ghost-stone-map="showGhostStones ? ghostStoneMap : undefined"
+        :lines="showLines ? [
+            {type: 'line', v1: [15, 6], v2: [12, 15]},
+            {type: 'arrow', v1: [10, 4], v2: [5, 7]}
+        ] : []"
+        :dimmed-map="showDimmedStones ? dimmedMap : []"
+        :selected-map="showSelection ? selectedMap : []"
+        @click="onVertexClick"
+        />
 </section>
 </template>
 
@@ -251,7 +250,7 @@ export default {
     data: function () {
         return {
             signMap: JSON.parse(JSON.stringify(rawSignMap)),
-            vertexSize: 24,
+            maxSize: 480,
             showCoordinates: false,
             alternateCoordinates: false,
             showCorner: false,

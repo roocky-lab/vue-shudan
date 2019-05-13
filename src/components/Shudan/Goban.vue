@@ -6,6 +6,26 @@ import ULine from './Line.vue';
 import helper from './helper.js';
 import { setTimeout } from 'timers';
 
+const defaultVertexSize = 24;
+const readjustShifts = function (shiftMap, boardSize, offset) {
+    const shift = shiftMap[offset];
+    if (!shift) return;
+
+    const table = [
+        [[1, 5, 8], offset - 1, [3, 7, 6]],         // 落点偏左，撞到落点左方偏右的棋子
+        [[2, 5, 6], offset - boardSize, [4, 7, 8]], // 上撞下
+        [[3, 7, 6], offset + 1, [1, 5, 8]],         // 右撞左
+        [[4, 7, 8], offset + boardSize, [2, 5, 6]], // 下撞上
+    ];
+    for (let [directions, nearOffset, removeShifts] of table) {
+        const nearShift = shiftMap[nearOffset];
+        if (nearShift
+            && directions.includes(shift)
+            && removeShifts.includes(nearShift))
+            shiftMap.splice(nearOffset, 1, 0); // 被撞到中位
+    }
+};
+
 export default {
     components: {
         Coord,
@@ -15,19 +35,19 @@ export default {
     },
 
     props: {
-        width: {
+        boardSize: {
             type: Number,
             default: 19
         },
 
-        height: {
+        maxWidth: {
             type: Number,
-            default: 19
+            default: 480
         },
 
-        vertexSize: {
+        maxHeight: {
             type: Number,
-            default: 16
+            default: 480
         },
     
         animate: {
@@ -63,8 +83,8 @@ export default {
         coordY: {
             type: Array,
             default() {
-                const { height } = this;
-                return [...Array(height)].map((_, i) => height - i);
+                const { boardSize } = this;
+                return [...Array(boardSize)].map((_, i) => boardSize - i);
             }
         },
 
@@ -105,14 +125,6 @@ export default {
 
         lines: {
             type: Array,
-            validator(params) {
-                const keys = ["type", "v1", "v2"];
-                for (let p of params)
-                    for (let k of keys)
-                        if (!(k in p))
-                            return false;
-                return true;
-            },
             default: undefined
         },
 
@@ -130,50 +142,64 @@ export default {
     data: function () {
         return {
             animatedVertices: [],
-            clearAnimatedVerticesHandler: null
+            clearAnimatedVerticesHandler: null,
+            offsetWidth: undefined,
+            offsetHeight: undefined,
+            fontSize: undefined,
+            updatingSize: false
         };
     },
 
     computed: {
-        size() {
-            const { width, height } = this;
-            return width * height;
+        vertexSize() {
+            const { offsetWidth, offsetHeight, fontSize } = this;
+            if (!offsetWidth || !offsetHeight || !fontSize) {
+                this.updateElementSize();
+                return defaultVertexSize;
+            }
+
+            const { maxWidth, maxHeight } = this;
+            const scale = Math.min(maxWidth / offsetWidth, maxHeight / offsetHeight);
+            const vertexSize = Math.max(Math.floor(fontSize * scale), 1);
+            return vertexSize;
         },
 
         shiftMap() {
-            const { size, width, readjustShifts } = this;
-            const shiftMap = [...Array(size)].map(() => helper.random(8));
-            shiftMap.forEach((_, i) => readjustShifts(shiftMap, i, width));
+            const { boardSize } = this;
+            const shiftMap = [...Array(boardSize * boardSize)].map(() => helper.random(8));
+            shiftMap.forEach((_, i) => readjustShifts(shiftMap, boardSize, i));
             return shiftMap;
         },
 
         randomMap() {
-            const { size } = this;
-            return [...Array(size)].map(() => helper.random(4));
+            const { boardSize } = this;
+            return [...Array(boardSize * boardSize)].map(() => helper.random(4));
         },
 
         xs() {
-            const { width, rangeX } = this;
-            return helper.range(width).slice(rangeX[0], rangeX[1] + 1);
+            this.updateElementSize();
+            const { boardSize, rangeX } = this;
+            return helper.range(boardSize).slice(rangeX[0], rangeX[1] + 1);
         },
 
         ys() {
-            const { height, rangeY } = this;
-            return helper.range(height).slice(rangeY[0], rangeY[1] + 1);
+            this.updateElementSize();
+            const { boardSize, rangeY } = this;
+            return helper.range(boardSize).slice(rangeY[0], rangeY[1] + 1);
         },
 
         hoshis() {
-            const { width, height } = this;
-            return helper.getHoshis(width, height);
+            const { boardSize} = this;
+            return helper.getHoshis(boardSize, boardSize);
         },
 
         vertices() {
             const { xs, ys, fuzzyStonePlacement, shiftMap, randomMap,
                     signMap, heatMap, paintMap, markerMap, ghostStoneMap,
-                    dimmedMap, selectedMap, animatedVertices, width} = this;
+                    dimmedMap, selectedMap, animatedVertices, boardSize} = this;
             const result = [];
             ys.forEach(y => { xs.forEach(x => {
-                const offset = y * width + x;
+                const offset = y * boardSize + x;
                 result.push({
                     offset,
                     shift: fuzzyStonePlacement ? shiftMap && shiftMap[offset] : 0,
@@ -193,7 +219,7 @@ export default {
     },
 
     watch: {
-        size: {
+        boardSize: {
             handler() {
                 this.animatedVertices = [];
                 this.clearAnimatedVerticesHandler = null;
@@ -213,6 +239,10 @@ export default {
                     this.updateAnimatedVertices();
                 }
             }
+        },
+
+        showCoordinates() {
+            this.updateElementSize();
         }
     },
 
@@ -222,7 +252,7 @@ export default {
                 // 触发落子滑动效果
                 for (let i of this.animatedVertices) {
                     this.$set(this.shiftMap, i, helper.random(7) + 1);
-                    this.readjustShifts(this.shiftMap, i, this.width);
+                    readjustShifts(this.shiftMap, this.boardSize, i);
                 }
 
                 // 延后清除效果(这样后续还可以再触发)
@@ -238,140 +268,136 @@ export default {
             }
         },
 
-        readjustShifts(shiftMap, offset, width) {
-            const shift = shiftMap[offset];
-            if (!shift) return;
-
-            const table = [
-                [[1, 5, 8], offset - 1, [3, 7, 6]],     // 落点偏左，撞到落点左方偏右的棋子
-                [[2, 5, 6], offset - width, [4, 7, 8]], // 上撞下
-                [[3, 7, 6], offset + 1, [1, 5, 8]],     // 右撞左
-                [[4, 7, 8], offset + width, [2, 5, 6]], // 下撞上
-            ];
-
-            for (let [directions, nearOffset, removeShifts] of table) {
-                const nearShift = shiftMap[nearOffset];
-                if (nearShift
-                    && directions.includes(shift)
-                    && removeShifts.includes(nearShift))
-                    shiftMap.splice(nearOffset, 1, 0); // 被撞到中位
-            }
+        updateElementSize() {
+            this.$nextTick(() => {
+                const element = this.$refs['goban-root'];
+                if (element) {
+                    this.offsetWidth = element.offsetWidth;
+                    this.offsetHeight = element.offsetHeight;
+                    this.fontSize = parseInt(element.style.fontSize) || defaultVertexSize;
+                } else {
+                    this.updateElementSize();
+                }
+            });
         }
     }
 };
 </script>
 
 <template>
-<div
-    :class="[
-        'shudan-goban shudan-goban-image',
-        {
-            'shudan-busy': busy,
-            'shudan-coordinates': showCoordinates
-        }
-    ]"
-    :style="`fontSize: ${vertexSize}px;`"
-    >
-    <!-- 中心区 -->
+<div>
     <div
-        class="center shudan-content"
-        :style="{
-            position: 'relative',
-            width: `${xs.length}em`,
-            height: `${ys.length}em`,
-        }"
+        ref="goban-root"
+        :class="[
+            'shudan-goban shudan-goban-image',
+            {
+                'shudan-busy': busy,
+                'shudan-coordinates': showCoordinates
+            }
+        ]"
+        :style="`font-size: ${vertexSize}px;`"
         >
-        <!-- 棋盘网线及星位 -->
-        <Grid
-            :width="width"
-            :height="height"
-            :xs="xs"
-            :ys="ys"
-            :hoshis="hoshis"
-            />
-
-        <!-- 落点区域 -->
+        <!-- 中心区 -->
         <div
-            class="shudan-vertices"
+            class="center shudan-content"
             :style="{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${xs.length}, 1em)`,
-                gridTemplateRows: `repeat(${ys.length}, 1em)`
+                position: 'relative',
+                width: `${xs.length}em`,
+                height: `${ys.length}em`,
             }"
             >
-            <Vertex
-                v-for="v in vertices"
-                :key="v.offset"
-                :shift="v.shift"
-                :random="v.random"
-                :sign="v.sign"
-                :heat="v.heat"
-                :paint="v.paint"
-                :marker="v.marker"
-                :ghost-stone="v.ghostStone"
-                :dimmed="v.dimmed"
-                :selected="v.selected"
-                :animate="v.animate"
-                @click="$emit('click', v.offset)"
-                @mousedown="$emit('mousedown', v.offset)"
-                @mouseup="$emit('mouseup', v.offset)"
-                @mousemove="$emit('mousemove', v.offset)"
-                @mouseenter="$emit('mouseenter', v.offset)"
-                @mouseleave="$emit('mouseleave', v.offset)"
+            <!-- 棋盘网线及星位 -->
+            <Grid
+                :width="boardSize"
+                :height="boardSize"
+                :xs="xs"
+                :ys="ys"
+                :hoshis="hoshis"
                 />
-        </div>
 
-        <!-- 指示线 -->
-        <div class="shudan-lines">
+            <!-- 落点区域 -->
             <div
+                class="shudan-vertices"
                 :style="{
-                    position: 'absolute',
-                    top: `-${rangeY[0]}em`,
-                    left: `-${rangeX[0]}em`,
-                    width: `${width}em`,
-                    height: `${height}em`,
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${xs.length}, 1em)`,
+                    gridTemplateRows: `repeat(${ys.length}, 1em)`
                 }"
                 >
-                <ULine
-                    v-for="(l, i) in lines"
-                    :key="i"
-                    :v1="l.v1"
-                    :v2="l.v2"
-                    :type="l.type"
+                <Vertex
+                    v-for="v in vertices"
+                    :key="v.offset"
+                    :shift="v.shift"
+                    :random="v.random"
+                    :sign="v.sign"
+                    :heat="v.heat"
+                    :paint="v.paint"
+                    :marker="v.marker"
+                    :ghost-stone="v.ghostStone"
+                    :dimmed="v.dimmed"
+                    :selected="v.selected"
+                    :animate="v.animate"
+                    @click="$emit('click', v.offset)"
+                    @mousedown="$emit('mousedown', v.offset)"
+                    @mouseup="$emit('mouseup', v.offset)"
+                    @mousemove="$emit('mousemove', v.offset)"
+                    @mouseenter="$emit('mouseenter', v.offset)"
+                    @mouseleave="$emit('mouseleave', v.offset)"
                     />
             </div>
-        </div>
-    </div>
 
-    <!-- 上左右下的刻度标签 -->
-    <Coord
-        v-if="showCoordinates"
-        class="top"
-        dir="x"
-        :sets="xs"
-        :labels="coordX"
-        />
-    <Coord
-        v-if="showCoordinates"
-        class="left"
-        dir="y"
-        :sets="ys"
-        :labels="coordY"
-        />
-    <Coord
-        v-if="showCoordinates"
-        class="right"
-        dir="y"
-        :sets="ys"
-        :labels="coordY"
-        />
-    <Coord
-        v-if="showCoordinates"
-        class="bottom"
-        dir="x"
-        :sets="xs"
-        :labels="coordX"
-        />
+            <!-- 指示线 -->
+            <div class="shudan-lines">
+                <div
+                    :style="{
+                        position: 'absolute',
+                        top: `-${rangeY[0]}em`,
+                        left: `-${rangeX[0]}em`,
+                        width: `${boardSize}em`,
+                        height: `${boardSize}em`,
+                    }"
+                    >
+                    <ULine
+                        v-for="(l, i) in lines"
+                        :key="i"
+                        :v1="l.v1"
+                        :v2="l.v2"
+                        :type="l.type"
+                        />
+                </div>
+            </div>
+        </div>
+
+        <!-- 上左右下的刻度标签 -->
+        <Coord
+            v-if="showCoordinates"
+            class="top"
+            dir="x"
+            :sets="xs"
+            :labels="coordX"
+            />
+        <Coord
+            v-if="showCoordinates"
+            class="left"
+            dir="y"
+            :sets="ys"
+            :labels="coordY"
+            />
+        <Coord
+            v-if="showCoordinates"
+            class="right"
+            dir="y"
+            :sets="ys"
+            :labels="coordY"
+            />
+        <Coord
+            v-if="showCoordinates"
+            class="bottom"
+            dir="x"
+            :sets="xs"
+            :labels="coordX"
+            />
+    </div>
 </div>
 </template>
 
