@@ -44,6 +44,6 @@ $ npm install @roocky/vue-shudan --save
 ```
 
 加载后直接调用即可：
-```js
-import { Goban } from '@roocky/vue-shudan';
+```javascript
+import Goban from '@roocky/vue-shudan';
 ```

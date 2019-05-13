@@ -1,6 +1,6 @@
 {
   "name": "@roocky/vue-shudan",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "基于Vue.js的围棋盘组件",
   "main": "./src/components/Shudan/index.js",
   "repository": {
@@ -54,22 +54,36 @@
       "parser": "babel-eslint"
     },
     "rules": {
-      "semi": ["error", "always"],
-      "space-before-function-paren": ["error", {
-        "anonymous": "always",
-        "named": "never",
-        "asyncArrow": "never"
-      }],
-      "vue/script-indent": ["error", 4, {
-        "baseIndent": 0
-      }],
-      "vue/html-indent": ["error", 4, {
-        "attribute": 1,
-        "baseIndent": 0,
-        "closeBracket": 1,
-        "alignAttributesVertically": false,
-        "ignores": []
-      }]
+      "semi": [
+        "error",
+        "always"
+      ],
+      "space-before-function-paren": [
+        "error",
+        {
+          "anonymous": "always",
+          "named": "never",
+          "asyncArrow": "never"
+        }
+      ],
+      "vue/script-indent": [
+        "error",
+        4,
+        {
+          "baseIndent": 0
+        }
+      ],
+      "vue/html-indent": [
+        "error",
+        4,
+        {
+          "attribute": 1,
+          "baseIndent": 0,
+          "closeBracket": 1,
+          "alignAttributesVertically": false,
+          "ignores": []
+        }
+      ]
     }
   },
   "postcss": {
